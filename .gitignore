@@ -1,0 +1,46 @@
+# Dados e backups: NUNCA versionar
+backups/
+*.sql
+*.dump
+*.sql.gz
+*.tar.gz
+*.7z
+*.age
+db.sqlite3
+media/
+
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+staticfiles/
+
+# Frontend
+node_modules/
+dist/
+.vite/
+
+# Editores e SO
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Documentos dos planos de ação:
+docs/plano
