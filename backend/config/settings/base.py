@@ -74,6 +74,22 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Argon2 para senhas novas; PBKDF2 fica para verificar hashes antigos e migrar no próximo login.
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+]
+
+
+# Sessão e cookies
+# CSRF_COOKIE_HTTPONLY continua False: o frontend lê o token do cookie.
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_AGE = 60 * 60 * 12  # 12 horas
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
 
 # Internationalization
 

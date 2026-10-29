@@ -7,6 +7,7 @@ import config.settings.prod
 def test_settings_sem_debug_em_prod(monkeypatch):
     # Mesmo com DJANGO_DEBUG=True no ambiente, prod tem que desligar o debug.
     monkeypatch.setenv("DJANGO_DEBUG", "True")
+    monkeypatch.setenv("DJANGO_CSRF_TRUSTED_ORIGINS", "https://exemplo.test")
     importlib.reload(config.settings.base)
     prod = importlib.reload(config.settings.prod)
 
