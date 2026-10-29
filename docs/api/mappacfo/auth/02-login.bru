@@ -1,0 +1,27 @@
+meta {
+  name: login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRFToken: {{csrftoken}}
+}
+
+body:json {
+  {
+    "numerica": "{{numerica}}",
+    "senha": "{{senha}}"
+  }
+}
+
+docs {
+  200: dados do usuário. 401: numérica ou senha incorreta. 429: bloqueado pelo axes (5 falhas).
+  O login gira o token CSRF: rode `csrf` de novo antes de trocar-senha ou logout.
+}

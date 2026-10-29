@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "MAPPA CFO",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

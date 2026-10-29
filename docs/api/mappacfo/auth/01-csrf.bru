@@ -1,0 +1,19 @@
+meta {
+  name: csrf
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/auth/csrf
+  body: none
+  auth: none
+}
+
+script:post-response {
+  bru.setVar("csrftoken", res.body.csrftoken);
+}
+
+docs {
+  Chame antes do login: grava o cookie csrftoken e guarda o token na variável csrftoken.
+}
