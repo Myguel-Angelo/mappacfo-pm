@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import F, Q
+from simple_history.models import HistoricalRecords
 
 # PROTECT em toda FK: o banco impede que um delete() apague histórico disciplinar.
 
@@ -10,6 +11,7 @@ class TipoPunicao(models.Model):
 
     nome = models.CharField(max_length=60, unique=True)
     ativo = models.BooleanField(default=True)
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["nome"]
@@ -58,6 +60,7 @@ class Anotacao(models.Model):
     )
     anulada_em = models.DateTimeField(null=True, blank=True)
     motivo_anulacao = models.TextField(blank=True)
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["-criada_em"]
@@ -103,6 +106,7 @@ class Despacho(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="despachos_feitos"
     )
     despachado_em = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
 
     class Meta:
         indexes = [models.Index(fields=["data_cumprimento"])]
@@ -122,6 +126,7 @@ class Compensacao(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="compensacoes_feitas"
     )
     feita_em = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "compensação"

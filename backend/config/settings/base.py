@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "simple_history",
     "axes",
     "contas",
     "anotacoes",
@@ -45,6 +46,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Registra request.user como autor de cada mudança no histórico.
+    "simple_history.middleware.HistoryRequestMiddleware",
     # Por último: troca a resposta do login pela de bloqueio quando o axes bloqueia.
     "axes.middleware.AxesMiddleware",
 ]

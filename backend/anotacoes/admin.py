@@ -1,15 +1,16 @@
 from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
 
 from anotacoes.models import Anotacao, Compensacao, Despacho, TipoPunicao
 
 
 @admin.register(TipoPunicao)
-class TipoPunicaoAdmin(admin.ModelAdmin):
+class TipoPunicaoAdmin(SimpleHistoryAdmin):
     list_display = ["nome", "ativo"]
 
 
 @admin.register(Anotacao)
-class AnotacaoAdmin(admin.ModelAdmin):
+class AnotacaoAdmin(SimpleHistoryAdmin):
     list_display = ["id", "tipo", "status", "cadete", "autor", "criada_em"]
     list_filter = ["status", "tipo"]
     search_fields = ["cadete__numerica", "cadete__nome", "motivo"]
@@ -21,7 +22,7 @@ class AnotacaoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Despacho)
-class DespachoAdmin(admin.ModelAdmin):
+class DespachoAdmin(SimpleHistoryAdmin):
     list_display = ["anotacao", "punicao", "data_cumprimento", "despachado_por"]
     raw_id_fields = ["anotacao", "despachado_por"]
 
@@ -30,7 +31,7 @@ class DespachoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Compensacao)
-class CompensacaoAdmin(admin.ModelAdmin):
+class CompensacaoAdmin(SimpleHistoryAdmin):
     list_display = ["positiva", "negativa", "feita_por", "feita_em"]
     raw_id_fields = ["positiva", "negativa", "feita_por"]
 
