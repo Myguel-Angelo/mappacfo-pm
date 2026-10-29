@@ -1,7 +1,14 @@
 from django.db import DatabaseError, connection
 from ninja import NinjaAPI, Schema, Status
 
-api = NinjaAPI(title="MAPPA CFO", version="2.0")
+from contas.api import router as auth_router
+from core.auth import instalar_handlers, sessao
+
+# Toda rota exige sessão por padrão; as públicas declaram auth=None.
+api = NinjaAPI(title="MAPPA CFO", version="2.0", auth=sessao)
+instalar_handlers(api)
+
+api.add_router("/auth", auth_router)
 
 
 class HealthOut(Schema):
