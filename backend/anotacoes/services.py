@@ -35,9 +35,16 @@ def _travar_cadete(cadete_id):
     Usuario.objects.select_for_update().filter(pk=cadete_id).first()
 
 
-def _validar_punicao_e_data(cadete_id, punicao, data_cumprimento, *, ignorar_despacho=None):
+def _punicao(punicao_id) -> TipoPunicao:
+    punicao = TipoPunicao.objects.filter(pk=punicao_id).first()
+    if punicao is None:
+        raise RegraViolada("Tipo de punição inválido.")
     if not punicao.ativo:
         raise RegraViolada("Este tipo de punição está desativado.")
+    return punicao
+
+
+def _validar_data(cadete_id, data_cumprimento, *, ignorar_despacho=None):
     if data_cumprimento < timezone.localdate():
         raise RegraViolada("A data de cumprimento deve ser hoje ou uma data futura.")
 
@@ -55,22 +62,25 @@ def _validar_punicao_e_data(cadete_id, punicao, data_cumprimento, *, ignorar_des
 
 
 @transaction.atomic
-def criar_anotacao(autor, cadete, tipo: str, motivo: str) -> Anotacao:
+def criar_anotacao(autor, cadete_id: int, tipo: str, motivo: str) -> Anotacao:
     exigir(autor, "anotacoes.anotar")
 
     motivo = motivo.strip()
     if not motivo:
         raise RegraViolada("Informe o motivo da anotação.")
-    if cadete.pk == autor.pk:
+    if tipo not in Tipo.values:
+        raise RegraViolada("Tipo de anotação inválido.")
+    if cadete_id == autor.pk:
         raise RegraViolada("Não é possível anotar a si mesmo.")
-    if not Usuario.objects.cadetes().filter(pk=cadete.pk).exists():
+    cadete = Usuario.objects.cadetes().filter(pk=cadete_id).first()
+    if cadete is None:
         raise RegraViolada("Só é possível anotar cadetes ativos.")
 
     return Anotacao.objects.create(autor=autor, cadete=cadete, tipo=tipo, motivo=motivo)
 
 
 @transaction.atomic
-def despachar(usuario, anotacao, punicao: TipoPunicao, data_cumprimento: date) -> Despacho:
+def despachar(usuario, anotacao, punicao_id: int, data_cumprimento: date) -> Despacho:
     exigir(usuario, "anotacoes.despachar")
     _travar_cadete(anotacao.cadete_id)
     anotacao = _travar(anotacao)
@@ -79,7 +89,8 @@ def despachar(usuario, anotacao, punicao: TipoPunicao, data_cumprimento: date) -
         raise RegraViolada("Só anotações negativas recebem punição.")
     if anotacao.status != Status.NOTIFICADA:
         raise RegraViolada("Esta anotação já foi despachada ou encerrada.")
-    _validar_punicao_e_data(anotacao.cadete_id, punicao, data_cumprimento)
+    punicao = _punicao(punicao_id)
+    _validar_data(anotacao.cadete_id, data_cumprimento)
 
     despacho = Despacho.objects.create(
         anotacao=anotacao,
@@ -93,16 +104,15 @@ def despachar(usuario, anotacao, punicao: TipoPunicao, data_cumprimento: date) -
 
 
 @transaction.atomic
-def editar_despacho(usuario, despacho, punicao: TipoPunicao, data_cumprimento: date) -> Despacho:
+def editar_despacho(usuario, despacho, punicao_id: int, data_cumprimento: date) -> Despacho:
     exigir(usuario, "anotacoes.despachar")
     _travar_cadete(despacho.anotacao.cadete_id)
     despacho = Despacho.objects.select_for_update().select_related("anotacao").get(pk=despacho.pk)
 
     if despacho.anotacao.status != Status.DESPACHADA:
         raise RegraViolada("Só é possível editar despachos ainda não cumpridos nem arquivados.")
-    _validar_punicao_e_data(
-        despacho.anotacao.cadete_id, punicao, data_cumprimento, ignorar_despacho=despacho
-    )
+    punicao = _punicao(punicao_id)
+    _validar_data(despacho.anotacao.cadete_id, data_cumprimento, ignorar_despacho=despacho)
 
     despacho.punicao = punicao
     despacho.data_cumprimento = data_cumprimento
@@ -111,9 +121,12 @@ def editar_despacho(usuario, despacho, punicao: TipoPunicao, data_cumprimento: d
 
 
 @transaction.atomic
-def compensar(usuario, positiva, negativa) -> Compensacao:
+def compensar(usuario, positiva, negativa_id: int) -> Compensacao:
     exigir(usuario, "anotacoes.despachar")
-    positiva, negativa = _travar(positiva), _travar(negativa)
+    negativa = Anotacao.objects.select_for_update().filter(pk=negativa_id).first()
+    if negativa is None:
+        raise RegraViolada("Anotação negativa não encontrada.")
+    positiva = _travar(positiva)
 
     if positiva.tipo != Tipo.POSITIVA or negativa.tipo != Tipo.NEGATIVA:
         raise RegraViolada("A compensação é de uma positiva por uma negativa.")
