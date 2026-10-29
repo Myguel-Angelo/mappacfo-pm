@@ -1,9 +1,8 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser, Group
-from django.test import RequestFactory
-from ninja.errors import HttpError
 
 from contas.models import Usuario
+from core.erros import SemPermissao
 from core.permissoes import exigir
 from tests.factories import UsuarioFactory
 
@@ -40,26 +39,18 @@ def test_usuario_novo_precisa_trocar_senha():
     assert u.deve_trocar_senha is True
 
 
-def _request(usuario):
-    request = RequestFactory().post("/")
-    request.user = usuario
-    return request
-
-
 def test_exigir_nega_sem_permissao():
-    with pytest.raises(HttpError) as exc:
-        exigir(_request(UsuarioFactory()), "contas.gerenciar_usuarios")
-
-    assert exc.value.status_code == 403
+    with pytest.raises(SemPermissao):
+        exigir(UsuarioFactory(), "contas.gerenciar_usuarios")
 
 
 def test_exigir_nega_anonimo():
-    with pytest.raises(HttpError):
-        exigir(_request(AnonymousUser()), "contas.gerenciar_usuarios")
+    with pytest.raises(SemPermissao):
+        exigir(AnonymousUser(), "contas.gerenciar_usuarios")
 
 
 def test_exigir_libera_com_permissao_do_grupo():
     usuario = UsuarioFactory()
     usuario.groups.add(Group.objects.get(name="Administrador"))
 
-    exigir(_request(usuario), "contas.gerenciar_usuarios")
+    exigir(usuario, "contas.gerenciar_usuarios")

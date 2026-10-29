@@ -4,7 +4,8 @@ from django.urls import path
 from ninja import NinjaAPI
 
 from config.urls import urlpatterns as urls_base
-from core.auth import instalar_handlers, sessao
+from core.auth import sessao
+from core.erros import instalar_handlers
 
 api_teste = NinjaAPI(auth=sessao, urls_namespace="api-teste")
 instalar_handlers(api_teste)

@@ -2,7 +2,8 @@ from django.db import DatabaseError, connection
 from ninja import NinjaAPI, Schema, Status
 
 from contas.api import router as auth_router
-from core.auth import instalar_handlers, sessao
+from core.auth import sessao
+from core.erros import instalar_handlers
 
 # Toda rota exige sessão por padrão; as públicas declaram auth=None.
 api = NinjaAPI(title="MAPPA CFO", version="2.0", auth=sessao)
