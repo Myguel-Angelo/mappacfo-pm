@@ -4,6 +4,7 @@ Tudo que muda entre ambientes ou é segredo vem de variável de ambiente (12-fac
 Ver .env.example na raiz do repositório.
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -29,7 +30,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "axes",
+    "contas",
 ]
+
+AUTH_USER_MODEL = "contas.Usuario"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -39,6 +44,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Por último: troca a resposta do login pela de bloqueio quando o axes bloqueia.
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -70,6 +77,40 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+# Argon2 para senhas novas; PBKDF2 fica para verificar hashes antigos e migrar no próximo login.
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+]
+
+
+# Sessão e cookies
+# CSRF_COOKIE_HTTPONLY continua False: o frontend lê o token do cookie.
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_AGE = 60 * 60 * 12  # 12 horas
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+
+# Limite de tentativas de login (django-axes)
+
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",  # antes do ModelBackend
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = timedelta(minutes=15)
+# Bloqueia a combinação numérica + IP: os cadetes saem pelo mesmo IP da rede da academia,
+# então bloquear só pelo IP derrubaria todo mundo por causa dos erros de um.
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+AXES_USERNAME_FORM_FIELD = "numerica"
+AXES_RESET_ON_SUCCESS = True
+AXES_LOCKOUT_CALLABLE = "contas.bloqueio.resposta_bloqueio"
+# Atrás do Caddy (fase 8) o IP real vem do X-Forwarded-For: definir AXES_IPWARE_PROXY_COUNT.
 
 
 # Internationalization

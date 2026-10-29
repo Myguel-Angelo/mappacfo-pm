@@ -7,11 +7,12 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "django>=5.2,<5.3",
+    "django[argon2]>=5.2,<5.3",
     "django-environ>=0.14.0",
     "django-ninja>=1.7.1",
     "gunicorn>=26.2.0",
     "psycopg[binary]>=3.3.6",
+    "django-axes>=8.3.1",
 ]
 
 [dependency-groups]
@@ -25,6 +26,8 @@ dev = [
 
 [tool.ruff]
 line-length = 100
+# Migrações são geradas pelo Django
+extend-exclude = ["**/migrations/**"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "DJ", "S"]

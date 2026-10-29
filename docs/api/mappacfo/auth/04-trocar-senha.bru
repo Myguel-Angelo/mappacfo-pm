@@ -1,0 +1,23 @@
+meta {
+  name: trocar-senha
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/auth/trocar-senha
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRFToken: {{csrftoken}}
+}
+
+body:json {
+  {
+    "senha_atual": "{{senha}}",
+    "nova_senha": "Nova-senha-forte-42",
+    "confirmacao": "Nova-senha-forte-42"
+  }
+}
