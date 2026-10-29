@@ -11,7 +11,29 @@ Esta é a versão 2.0, reescrita do zero a partir do sistema antigo (Django + te
 
 ## Estado atual
 
-Fase 0 — repositório e dados legados. Ainda não há código.
+Fase 1 — fundação: Postgres + API Django em containers, health check e CI.
+
+## Rodando localmente
+
+Pré-requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/), [just](https://github.com/casey/just) e, para rodar ferramentas fora do container, [uv](https://docs.astral.sh/uv/).
+
+```powershell
+copy .env.example .env   # troque DJANGO_SECRET_KEY e as senhas
+just up
+```
+
+- API: http://localhost:8000/api/health deve responder `{"status": "ok"}`
+- Documentação interativa: http://localhost:8000/api/docs
+
+| Comando | O que faz |
+| --- | --- |
+| `just up` / `just down` | Sobe (com rebuild) / derruba os containers; o banco fica no volume `pgdata` |
+| `just logs` | Logs da api |
+| `just test` | pytest dentro do container (`just test -k health` repassa argumentos) |
+| `just lint` / `just fmt` | Confere / corrige com ruff |
+| `just migrate`, `just shell`, `just psql` | Django e Postgres dentro dos containers |
+
+`docker compose down -v` apaga também o volume do banco.
 
 ## Dados legados
 
