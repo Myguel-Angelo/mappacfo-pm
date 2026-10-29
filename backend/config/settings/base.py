@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "axes",
     "contas",
+    "anotacoes",
 ]
 
 AUTH_USER_MODEL = "contas.Usuario"
