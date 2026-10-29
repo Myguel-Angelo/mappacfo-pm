@@ -1,0 +1,5 @@
+* text=auto
+
+# Scripts rodam dentro de containers Linux: CRLF quebra o shebang
+*.sh text eol=lf
+Dockerfile text eol=lf
