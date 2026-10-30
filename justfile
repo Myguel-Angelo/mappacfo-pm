@@ -38,3 +38,13 @@ lint:
 fmt:
     docker compose exec api ruff check --fix .
     docker compose exec api ruff format .
+
+web-logs:
+    docker compose logs -f web
+
+web-sh:
+    docker compose exec web sh
+
+# Regenera src/api/schema.d.ts a partir do OpenAPI da api (os dois containers no ar)
+api-types:
+    docker compose exec web pnpm api:types

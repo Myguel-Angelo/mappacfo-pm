@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Store do pnpm (o container usa um volume; isto evita versionar se aparecer)
+.pnpm-store/
