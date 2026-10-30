@@ -162,10 +162,10 @@ O passo a passo completo de cada fase está em [plano/](plano/README.md).
 
 ### Fase 1 — Fundação
 
-- [ ] Estrutura da seção 4, `.env.example` desde o primeiro commit
-- [ ] Compose com `db` + `api`; Django sobe e conecta no Postgres
-- [ ] Settings por variável de ambiente (`DEBUG`, `SECRET_KEY`, `ALLOWED_HOSTS`, banco)
-- [ ] CI: ruff + pytest a cada push
+- [x] Estrutura da seção 4, `.env.example` desde o primeiro commit
+- [x] Compose com `db` + `api`; Django sobe e conecta no Postgres
+- [x] Settings por variável de ambiente (`DEBUG`, `SECRET_KEY`, `ALLOWED_HOSTS`, banco)
+- [x] CI: ruff + pytest a cada push
 
 **Revisar:** imagem x container x volume, camadas do Dockerfile, rede do compose, 12-factor.
 
@@ -173,11 +173,11 @@ O passo a passo completo de cada fase está em [plano/](plano/README.md).
 
 ### Fase 2 — Contas e autenticação
 
-- [ ] `Usuario` customizado na primeira migração, login pela numérica
-- [ ] Grupos e permissões criados por migração de dados
-- [ ] Endpoints de login, logout, "quem sou eu" e troca de senha (sessão + CSRF)
-- [ ] **(urgente)** Senha só por `check_password`; nenhuma senha legada aproveitada, todos trocam no primeiro acesso
-- [ ] Limite de tentativas (django-axes) e troca obrigatória no primeiro acesso
+- [x] `Usuario` customizado na primeira migração, login pela numérica
+- [x] Grupos e permissões criados por migração de dados
+- [x] Endpoints de login, logout, "quem sou eu" e troca de senha (sessão + CSRF)
+- [x] **(urgente)** Senha só por `check_password`; nenhuma senha legada aproveitada, todos trocam no primeiro acesso
+- [x] Limite de tentativas (django-axes) e troca obrigatória no primeiro acesso
 
 **Revisar:** hash de senha (PBKDF2/Argon2), sessão x token, CSRF, session fixation, cookies `Secure`/`HttpOnly`/`SameSite`.
 
@@ -185,12 +185,12 @@ O passo a passo completo de cada fase está em [plano/](plano/README.md).
 
 ### Fase 3 — Domínio: anotações, despacho, compensação
 
-- [ ] Models da seção 4 com `status` em choices e restrições no banco
-- [ ] Regras numa camada de serviço (não nas rotas): criar, despachar, compensar, anular
-- [ ] **(urgente)** Permissão checada em toda rota, com teste do cadete tentando anular ou excluir; cadete só vê o que é dele
-- [ ] **(urgente)** Despacho: data obrigatória, punição vinda da tabela de tipos e checagem de data duplicada que ignora a própria anotação
-- [ ] Histórico com django-simple-history
-- [ ] Testes de cada regra e de cada permissão negada
+- [x] Models da seção 4 com `status` em choices e restrições no banco
+- [x] Regras numa camada de serviço (não nas rotas): criar, despachar, compensar, anular
+- [x] **(urgente)** Permissão checada em toda rota, com teste do cadete tentando anular ou excluir; cadete só vê o que é dele
+- [x] **(urgente)** Despacho: data obrigatória, punição vinda da tabela de tipos e checagem de data duplicada que ignora a própria anotação
+- [x] Histórico com django-simple-history
+- [x] Testes de cada regra e de cada permissão negada
 
 **Revisar:** transações, constraints, `select_related`/`prefetch_related`, autorização por objeto.
 
@@ -198,10 +198,10 @@ O passo a passo completo de cada fase está em [plano/](plano/README.md).
 
 ### Fase 4 — Frontend
 
-- [ ] Projeto Vite + TS no container `web`, proxy para `/api` no dev
-- [ ] Login, layout por perfil e rotas protegidas
-- [ ] Telas: minhas anotações (cadete), relação de cadetes e anotar (oficial), despachar e despachadas (comandante)
-- [ ] Estados de carregando, vazio e erro em toda tela; funciona no celular
+- [x] Projeto Vite + TS no container `web`, proxy para `/api` no dev
+- [x] Login, layout por perfil e rotas protegidas
+- [x] Telas: minhas anotações (cadete), relação de cadetes e anotar (oficial), despachar e despachadas (comandante)
+- [ ] Estados de carregando, vazio e erro em toda tela; funciona no celular (feito e conferido em 360 px; falta o teste no celular real)
 
 **Revisar:** componentes e estado, TanStack Query (cache, invalidação), formulários controlados, acessibilidade básica.
 
