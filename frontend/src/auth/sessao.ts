@@ -46,13 +46,11 @@ export function useLogin() {
 }
 
 export function useLogout() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => api<void>("/auth/logout", { method: "POST" }),
-    onSettled: () => {
-      queryClient.clear();
-      queryClient.setQueryData(CHAVE_SESSAO, null);
-    },
+    // Recarrega a página: nada da sessão anterior fica na memória (cache, formulários) e o
+    // próximo login começa no início, não na última tela de quem saiu.
+    onSettled: () => window.location.replace("/login"),
   });
 }
 
