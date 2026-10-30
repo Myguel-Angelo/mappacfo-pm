@@ -4,8 +4,22 @@
   "rules": {
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "warn",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ],
     "typescript/no-explicit-any": "error"
   },
-  "ignorePatterns": ["dist", "src/api/schema.d.ts"]
+  "ignorePatterns": ["dist", "src/api/schema.d.ts"],
+  "overrides": [
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "react/only-export-components": "off",
+        "jsx-a11y/prefer-tag-over-role": "off"
+      }
+    }
+  ]
 }
