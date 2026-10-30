@@ -1,10 +1,12 @@
 import json
+from datetime import timedelta
 
 import pytest
 from axes.utils import reset as axes_reset
 from django.test import Client
+from django.utils import timezone
 
-from tests.factories import SENHA, UsuarioFactory
+from tests.factories import SENHA, TipoPunicaoFactory, UsuarioFactory
 
 
 class ClienteApi:
@@ -24,10 +26,16 @@ class ClienteApi:
         return self.client.get(caminho if caminho.startswith("/") else f"/api/{caminho}")
 
     def post(self, caminho, dados=None, *, com_csrf=True):
+        return self._enviar("post", caminho, dados, com_csrf)
+
+    def put(self, caminho, dados=None, *, com_csrf=True):
+        return self._enviar("put", caminho, dados, com_csrf)
+
+    def _enviar(self, metodo, caminho, dados, com_csrf):
         headers = {}
         if com_csrf and "csrftoken" in self.client.cookies:
             headers["X-CSRFToken"] = self.client.cookies["csrftoken"].value
-        return self.client.post(
+        return getattr(self.client, metodo)(
             caminho if caminho.startswith("/") else f"/api/{caminho}",
             data=json.dumps(dados or {}),
             content_type="application/json",
@@ -66,3 +74,36 @@ def logado(api, usuario):
     resp = api.login(usuario.numerica)
     assert resp.status_code == 200
     return api
+
+
+# Domínio
+
+
+@pytest.fixture
+def cadete(db):
+    return UsuarioFactory(cadete=True)
+
+
+@pytest.fixture
+def oficial(db):
+    return UsuarioFactory(oficial=True)
+
+
+@pytest.fixture
+def comandante(db):
+    return UsuarioFactory(comandante=True)
+
+
+@pytest.fixture
+def punicao(db):
+    return TipoPunicaoFactory(nome="Pernoite")
+
+
+@pytest.fixture
+def hoje():
+    return timezone.localdate()
+
+
+@pytest.fixture
+def amanha(hoje):
+    return hoje + timedelta(days=1)
