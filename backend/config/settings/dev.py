@@ -9,3 +9,7 @@ CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[]) or [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+
+# "api" é o nome do serviço no compose: o container web gera os tipos do frontend
+# a partir de http://api:8000/api/openapi.json.
+ALLOWED_HOSTS = [*ALLOWED_HOSTS, "api"]  # noqa: F405

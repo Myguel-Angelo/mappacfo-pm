@@ -17,7 +17,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     // Sem changeOrigin: o Django recebe Host localhost:5173 e o Origin do navegador bate.
-    proxy: { "/api": apiProxy },
+    proxy: { "/api": { target: apiProxy, changeOrigin: false } },
     // Bind mount do Windows não propaga eventos de arquivo para o container.
     watch: { usePolling: process.env.VITE_USE_POLLING === "true" },
   },
