@@ -10,7 +10,13 @@
         "allowConstantExport": true
       }
     ],
-    "typescript/no-explicit-any": "error"
+    "typescript/no-explicit-any": "error",
+    "jsx-a11y/label-has-associated-control": [
+      "warn",
+      {
+        "depth": 4
+      }
+    ]
   },
   "ignorePatterns": ["dist", "src/api/schema.d.ts"],
   "overrides": [
