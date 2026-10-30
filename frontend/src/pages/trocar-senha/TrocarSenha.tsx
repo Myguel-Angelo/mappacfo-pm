@@ -7,7 +7,6 @@ import { z } from "zod";
 import { useTrocarSenha, useUsuario } from "@/auth/sessao";
 import { Campo, ErroFormulario, InputSenha } from "@/components/formulario";
 import { aplicarErrosNosCampos } from "@/lib/formulario";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 // Espelha o básico dos validadores do Django; a API confere o resto (senha comum, parecida
@@ -62,12 +61,10 @@ export function TrocarSenha() {
       <h1 className="text-2xl font-bold text-primary">Alterar senha</h1>
 
       {usuario.deve_trocar_senha && (
-        <Alert>
-          <AlertTitle>Troca de senha obrigatória</AlertTitle>
-          <AlertDescription>
-            Para continuar usando o sistema, defina uma senha nova, só sua.
-          </AlertDescription>
-        </Alert>
+        <div className="rounded-lg border border-primary/30 bg-accent p-4 text-sm text-accent-foreground">
+          <p className="font-bold">Troca de senha obrigatória</p>
+          <p>Para continuar usando o sistema, defina uma senha nova, só sua.</p>
+        </div>
       )}
 
       <div className="rounded-lg bg-card p-4 text-sm">

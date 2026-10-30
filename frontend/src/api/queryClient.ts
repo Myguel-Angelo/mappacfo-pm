@@ -18,7 +18,7 @@ export function criarQueryClient() {
         staleTime: 30_000,
         refetchOnWindowFocus: false,
         // Só vale tentar de novo quando o problema é rede/servidor; 4xx não muda sozinho.
-        retry: (tentativas, erro) => erro instanceof ErroRede && tentativas < 2,
+        retry: (tentativas, erro) => erro instanceof ErroRede && tentativas < 1,
       },
     },
   });
