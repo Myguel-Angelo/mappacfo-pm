@@ -334,7 +334,7 @@ export interface components {
             nome: string;
             /** Email */
             email: string;
-            turma: components["schemas"]["TurmaOut"] | null;
+            turma: components["schemas"]["TurmaResumoOut"] | null;
             /** Perfil */
             perfil: string;
             /** Grupos */
@@ -344,14 +344,12 @@ export interface components {
             /** Deve Trocar Senha */
             deve_trocar_senha: boolean;
         };
-        /** TurmaOut */
-        TurmaOut: {
+        /** TurmaResumoOut */
+        TurmaResumoOut: {
             /** Id */
             id: number;
             /** Nome */
             nome: string;
-            /** Ano Ingresso */
-            ano_ingresso: number;
         };
         /** ErroOut */
         ErroOut: {
@@ -377,6 +375,15 @@ export interface components {
             nova_senha: string;
             /** Confirmacao */
             confirmacao: string;
+        };
+        /** TurmaOut */
+        TurmaOut: {
+            /** Id */
+            id: number;
+            /** Nome */
+            nome: string;
+            /** Ano Ingresso */
+            ano_ingresso: number;
         };
         /** CadeteOut */
         CadeteOut: {
