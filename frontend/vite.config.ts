@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
@@ -20,5 +21,10 @@ export default defineConfig({
     proxy: { "/api": { target: apiProxy, changeOrigin: false } },
     // Bind mount do Windows não propaga eventos de arquivo para o container.
     watch: { usePolling: process.env.VITE_USE_POLLING === "true" },
+  },
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
+    css: false,
   },
 });

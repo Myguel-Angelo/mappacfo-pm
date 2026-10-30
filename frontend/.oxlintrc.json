@@ -26,6 +26,12 @@
         "react/only-export-components": "off",
         "jsx-a11y/prefer-tag-over-role": "off"
       }
+    },
+    {
+      "files": ["src/test/**", "**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "react/only-export-components": "off"
+      }
     }
   ]
 }

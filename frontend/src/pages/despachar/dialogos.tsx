@@ -121,7 +121,7 @@ export function DialogDespacho({
   );
 }
 
-export function FormularioDespacho({
+function FormularioDespacho({
   anotacao,
   onClose,
   editar,
