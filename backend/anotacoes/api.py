@@ -76,8 +76,10 @@ def listar_punicoes(request):
     return TipoPunicao.objects.filter(ativo=True)
 
 
-@router.get("/estatisticas/semana", response=EstatisticasOut)
+@router.get("/estatisticas/semana", response={200: EstatisticasOut, 403: ErroOut})
 def estatisticas_semana(request):
+    # No sistema antigo o bloco de estatísticas só aparecia para o Oficial Comandante.
+    exigir(request.user, "anotacoes.despachar")
     return services.estatisticas_semana()
 
 

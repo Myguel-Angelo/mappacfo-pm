@@ -85,7 +85,7 @@ def _compensar(cadete):
 #                     cadete  c/anotar  oficial  comandante
 MATRIZ = {
     "ver_minhas": (200, 200, 200, 200),
-    "ver_estatisticas": (200, 200, 200, 200),
+    "ver_estatisticas": (403, 403, 403, 200),
     "listar_cadetes": (403, 200, 200, 200),
     "listar_anotacoes": (403, 403, 200, 200),
     "anotar": (403, 201, 201, 201),
