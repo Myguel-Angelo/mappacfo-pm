@@ -3,6 +3,8 @@ import { Route, Routes } from "react-router";
 import { RotaProtegida } from "@/auth/RotaProtegida";
 import { Layout } from "@/components/Layout";
 import { Cadetes } from "@/pages/cadetes/Cadetes";
+import { Despachadas } from "@/pages/despachadas/Despachadas";
+import { Despachar } from "@/pages/despachar/Despachar";
 import { Inicio } from "@/pages/inicio/Inicio";
 import { Login } from "@/pages/login/Login";
 import { MinhasAnotacoes } from "@/pages/minhas-anotacoes/MinhasAnotacoes";
@@ -31,6 +33,10 @@ export function Rotas() {
             </RotaProtegida>
           }
         />
+        <Route element={<RotaProtegida permissao="anotacoes.despachar" />}>
+          <Route path="despachar" element={<Despachar />} />
+          <Route path="despachadas" element={<Despachadas />} />
+        </Route>
         <Route path="*" element={<NaoEncontrada />} />
       </Route>
     </Routes>
