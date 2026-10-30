@@ -286,3 +286,14 @@ def test_historico_registra_quem_despachou(api, comandante):
     assert ultima.status == Anotacao.Status.DESPACHADA
     assert ultima.history_user == comandante
     assert ultima.prev_record.status == Anotacao.Status.NOTIFICADA
+
+
+def test_autor_vem_com_perfil_para_exibicao(api, comandante):
+    AnotacaoFactory(autor=comandante)
+    AnotacaoFactory()  # autor oficial (padrão da factory)
+    AnotacaoFactory(autor=UsuarioFactory(cadete=True, perms=["anotacoes.anotar"]))
+    api.login(comandante.numerica)
+
+    perfis = {a["autor"]["perfil"] for a in api.get("anotacoes").json()["items"]}
+
+    assert perfis == {"Oficial Comandante", "Oficial", "Cadete"}

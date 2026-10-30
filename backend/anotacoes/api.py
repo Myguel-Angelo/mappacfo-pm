@@ -39,7 +39,7 @@ def anotacoes_visiveis(usuario):
         "despacho__despachado_por",
         "compensa",
         "compensada_por",
-    )
+    ).prefetch_related("autor__groups")
     if usuario.has_perm("anotacoes.ver_anotacoes"):
         return qs
     return qs.filter(Q(cadete=usuario) | Q(autor=usuario))

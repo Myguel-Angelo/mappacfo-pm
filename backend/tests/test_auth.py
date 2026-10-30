@@ -85,6 +85,7 @@ def test_me_lista_grupos_e_permissoes(api, usuario):
     dados = api.get("auth/me").json()
 
     assert dados["grupos"] == ["Administrador"]
+    assert dados["perfil"] == "Administrador"
     assert "contas.gerenciar_usuarios" in dados["permissoes"]
 
 
