@@ -11,7 +11,7 @@ Esta é a versão 2.0, reescrita do zero a partir do sistema antigo (Django + te
 
 ## Estado atual
 
-Fases 1 a 4: Postgres + API Django (contas, sessão com CSRF, anotações, despacho e compensação) e o frontend em React para cadete, oficial e comandante. Próxima: fase 5, mappa e arquivos.
+Fases 1 a 5: Postgres + API Django (contas, sessão com CSRF, anotações, despacho, compensação e mappa em Excel com download autenticado) e o frontend em React para cadete, oficial e comandante. Próxima: fase 6, painel administrativo.
 
 ## Rodando localmente
 
@@ -51,7 +51,7 @@ No frontend (`cd frontend`, com `pnpm install` no host para o editor e os testes
 
 O `node_modules` do container fica num volume próprio (Linux); o do host (Windows) não é usado por ele.
 
-`docker compose down -v` apaga também o volume do banco.
+`docker compose down -v` apaga também os volumes do banco e dos mappas gerados (`privado`).
 
 ## Dados legados
 
