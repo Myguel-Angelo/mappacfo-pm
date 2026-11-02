@@ -29,7 +29,9 @@ type Opcoes = {
 export async function api<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
   const metodo = opcoes.method ?? "GET";
   const headers = new Headers({ Accept: "application/json" });
-  if (opcoes.body !== undefined) headers.set("Content-Type", "application/json");
+  // FormData (upload) vai como está: o navegador monta o multipart com o boundary.
+  const ehFormulario = opcoes.body instanceof FormData;
+  if (opcoes.body !== undefined && !ehFormulario) headers.set("Content-Type", "application/json");
   if (!METODOS_SEGUROS.has(metodo)) {
     await garantirCsrf();
     headers.set("X-CSRFToken", lerCookie("csrftoken") ?? "");
@@ -40,7 +42,12 @@ export async function api<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
     resp = await fetch(`/api${caminho}`, {
       method: metodo,
       headers,
-      body: opcoes.body === undefined ? undefined : JSON.stringify(opcoes.body),
+      body:
+        opcoes.body === undefined
+          ? undefined
+          : ehFormulario
+            ? (opcoes.body as FormData)
+            : JSON.stringify(opcoes.body),
       credentials: "same-origin",
       signal: opcoes.signal,
     });

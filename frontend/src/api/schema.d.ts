@@ -364,6 +364,305 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/usuarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Usuarios */
+        get: operations["administracao_api_listar_usuarios"];
+        put?: never;
+        /** Criar Usuario */
+        post: operations["administracao_api_criar_usuario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/usuarios/{usuario_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar Usuario */
+        patch: operations["administracao_api_editar_usuario"];
+        trace?: never;
+    };
+    "/api/admin/usuarios/{usuario_id}/desativar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Desativar Usuario */
+        post: operations["administracao_api_desativar_usuario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/usuarios/{usuario_id}/reativar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reativar Usuario */
+        post: operations["administracao_api_reativar_usuario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/usuarios/{usuario_id}/resetar-senha": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resetar Senha */
+        post: operations["administracao_api_resetar_senha"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/turmas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Turmas */
+        get: operations["administracao_api_listar_turmas"];
+        put?: never;
+        /** Criar Turma */
+        post: operations["administracao_api_criar_turma"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/turmas/mover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mover Cadetes */
+        post: operations["administracao_api_mover_cadetes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/turmas/{turma_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar Turma */
+        patch: operations["administracao_api_editar_turma"];
+        trace?: never;
+    };
+    "/api/admin/turmas/{turma_id}/formar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Formar Turma */
+        post: operations["administracao_api_formar_turma"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/punicoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Punicoes */
+        get: operations["administracao_api_listar_punicoes"];
+        put?: never;
+        /** Criar Punicao */
+        post: operations["administracao_api_criar_punicao"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/punicoes/{punicao_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar Punicao */
+        patch: operations["administracao_api_editar_punicao"];
+        trace?: never;
+    };
+    "/api/admin/importacoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Criar Previa */
+        post: operations["administracao_api_criar_previa"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/importacoes/{importacao_id}/confirmar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirmar Importacao */
+        post: operations["administracao_api_confirmar_importacao"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/auditoria": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Auditoria */
+        get: operations["administracao_api_listar_auditoria"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/acessos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar Acessos
+         * @description Logins com sucesso (django-axes).
+         */
+        get: operations["administracao_api_listar_acessos"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/bloqueios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar Tentativas
+         * @description Falhas de login recentes por numérica + IP; bloqueado = atingiu o limite e ainda
+         *     está no período de espera.
+         */
+        get: operations["administracao_api_listar_tentativas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/bloqueios/{numerica}/liberar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Liberar Bloqueio */
+        post: operations["administracao_api_liberar_bloqueio"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -635,6 +934,355 @@ export interface components {
         PublicacaoIn: {
             /** Publicado */
             publicado: boolean;
+        };
+        /** AdminUsuarioFiltros */
+        AdminUsuarioFiltros: {
+            /** Busca */
+            busca?: string | null;
+            /** Grupo */
+            grupo?: string | null;
+            /** Turma Id */
+            turma_id?: number | null;
+            /** Ativo */
+            ativo?: boolean | null;
+        };
+        /** AdminUsuarioOut */
+        AdminUsuarioOut: {
+            /** Id */
+            id: number;
+            /** Numerica */
+            numerica: string;
+            /** Nome */
+            nome: string;
+            /** Email */
+            email: string;
+            /** Perfil */
+            perfil: string;
+            turma: components["schemas"]["TurmaResumoOut"] | null;
+            /** Grupos */
+            grupos: string[];
+            /** Anotar */
+            anotar: boolean;
+            /** Ativo */
+            ativo: boolean;
+            /** Deve Trocar Senha */
+            deve_trocar_senha: boolean;
+            /** Ultimo Acesso */
+            ultimo_acesso: string | null;
+        };
+        /** PagedAdminUsuarioOut */
+        PagedAdminUsuarioOut: {
+            /** Items */
+            items: components["schemas"]["AdminUsuarioOut"][];
+            /** Count */
+            count: number;
+        };
+        /** AdminUsuarioCriadoOut */
+        AdminUsuarioCriadoOut: {
+            usuario: components["schemas"]["AdminUsuarioOut"];
+            /** Senha Temporaria */
+            senha_temporaria: string;
+        };
+        /** AdminUsuarioCriarIn */
+        AdminUsuarioCriarIn: {
+            /** Numerica */
+            numerica: string;
+            /** Nome */
+            nome: string;
+            /**
+             * Email
+             * @default
+             */
+            email: string;
+            /** Turma Id */
+            turma_id?: number | null;
+            /**
+             * Grupos
+             * @default []
+             */
+            grupos: string[];
+            /**
+             * Anotar
+             * @default false
+             */
+            anotar: boolean;
+        };
+        /** AdminUsuarioEditarIn */
+        AdminUsuarioEditarIn: {
+            /** Nome */
+            nome?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Turma Id */
+            turma_id?: number | null;
+            /** Grupos */
+            grupos?: string[] | null;
+            /** Anotar */
+            anotar?: boolean | null;
+        };
+        /** AdminSenhaOut */
+        AdminSenhaOut: {
+            /** Senha Temporaria */
+            senha_temporaria: string;
+        };
+        /** AdminTurmaOut */
+        AdminTurmaOut: {
+            /** Id */
+            id: number;
+            /** Nome */
+            nome: string;
+            /** Ano Ingresso */
+            ano_ingresso: number;
+            /** Ativa */
+            ativa: boolean;
+            /** Total Cadetes */
+            total_cadetes: number;
+        };
+        /** AdminTurmaIn */
+        AdminTurmaIn: {
+            /** Nome */
+            nome: string;
+            /** Ano Ingresso */
+            ano_ingresso: number;
+        };
+        /** AdminQuantidadeOut */
+        AdminQuantidadeOut: {
+            /** Quantidade */
+            quantidade: number;
+        };
+        /** AdminMoverIn */
+        AdminMoverIn: {
+            /** Cadete Ids */
+            cadete_ids: number[];
+            /** Destino Id */
+            destino_id: number;
+        };
+        /** AdminTurmaEditarIn */
+        AdminTurmaEditarIn: {
+            /** Nome */
+            nome?: string | null;
+            /** Ano Ingresso */
+            ano_ingresso?: number | null;
+            /** Ativa */
+            ativa?: boolean | null;
+        };
+        /** AdminPunicaoOut */
+        AdminPunicaoOut: {
+            /** Id */
+            id: number;
+            /** Nome */
+            nome: string;
+            /** Ativo */
+            ativo: boolean;
+            /** Total Despachos */
+            total_despachos: number;
+        };
+        /** AdminPunicaoIn */
+        AdminPunicaoIn: {
+            /** Nome */
+            nome: string;
+        };
+        /** AdminPunicaoEditarIn */
+        AdminPunicaoEditarIn: {
+            /** Nome */
+            nome?: string | null;
+            /** Ativo */
+            ativo?: boolean | null;
+        };
+        /** AdminImportacaoOut */
+        AdminImportacaoOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nome Arquivo */
+            nome_arquivo: string;
+            /**
+             * Criada Em
+             * Format: date-time
+             */
+            criada_em: string;
+            /**
+             * Expira Em
+             * Format: date-time
+             */
+            expira_em: string;
+            /** Atualizar Existentes */
+            atualizar_existentes: boolean;
+            /** Criar Turmas */
+            criar_turmas: boolean;
+            /** Linhas */
+            linhas: components["schemas"]["AdminLinhaImportacaoOut"][];
+            totais: components["schemas"]["AdminTotaisImportacaoOut"];
+        };
+        /** AdminLinhaImportacaoOut */
+        AdminLinhaImportacaoOut: {
+            /** Linha */
+            linha: number;
+            /** Numerica */
+            numerica: string;
+            /** Nome */
+            nome: string;
+            /** Turma */
+            turma: string;
+            /** Email */
+            email: string;
+            /** Acao */
+            acao: string;
+            /** Erros */
+            erros: string[];
+            /** Mudancas */
+            mudancas: string[];
+        };
+        /** AdminTotaisImportacaoOut */
+        AdminTotaisImportacaoOut: {
+            /** Criar */
+            criar: number;
+            /** Atualizar */
+            atualizar: number;
+            /** Ignorar */
+            ignorar: number;
+            /** Erro */
+            erro: number;
+        };
+        /** AdminImportacaoOpcoesIn */
+        AdminImportacaoOpcoesIn: {
+            /**
+             * Atualizar Existentes
+             * @default false
+             */
+            atualizar_existentes: boolean;
+            /**
+             * Criar Turmas
+             * @default false
+             */
+            criar_turmas: boolean;
+        };
+        /** AdminCadeteCriadoOut */
+        AdminCadeteCriadoOut: {
+            /** Numerica */
+            numerica: string;
+            /** Nome */
+            nome: string;
+            /** Turma */
+            turma: string;
+            /** Senha Temporaria */
+            senha_temporaria: string;
+        };
+        /** AdminResultadoImportacaoOut */
+        AdminResultadoImportacaoOut: {
+            /** Criados */
+            criados: components["schemas"]["AdminCadeteCriadoOut"][];
+            /** Atualizados */
+            atualizados: number;
+            /** Ignorados */
+            ignorados: number;
+        };
+        /** AdminAuditoriaFiltros */
+        AdminAuditoriaFiltros: {
+            /** Inicio */
+            inicio?: string | null;
+            /** Fim */
+            fim?: string | null;
+            /** Usuario Id */
+            usuario_id?: number | null;
+            /** Tipo */
+            tipo?: ("anotacao" | "despacho" | "compensacao" | "mappa" | "usuario" | "turma" | "punicao") | null;
+            /**
+             * Page
+             * @default 1
+             */
+            page: number;
+        };
+        /** AdminAuditoriaItemOut */
+        AdminAuditoriaItemOut: {
+            /** Id */
+            id: string;
+            /**
+             * Quando
+             * Format: date-time
+             */
+            quando: string;
+            usuario: components["schemas"]["AdminAutorOut"] | null;
+            /** Acao */
+            acao: string;
+            /** Tipo */
+            tipo: string;
+            /** Tipo Rotulo */
+            tipo_rotulo: string;
+            /** Registro Id */
+            registro_id: number;
+            /** Descricao */
+            descricao: string;
+            /** Motivo */
+            motivo: string | null;
+            /** Mudancas */
+            mudancas: components["schemas"]["AdminMudancaOut"][];
+        };
+        /** AdminAuditoriaPaginaOut */
+        AdminAuditoriaPaginaOut: {
+            /** Items */
+            items: components["schemas"]["AdminAuditoriaItemOut"][];
+            /** Count */
+            count: number;
+        };
+        /** AdminAutorOut */
+        AdminAutorOut: {
+            /** Id */
+            id: number;
+            /** Numerica */
+            numerica: string;
+            /** Nome */
+            nome: string;
+        };
+        /** AdminMudancaOut */
+        AdminMudancaOut: {
+            /** Campo */
+            campo: string;
+            /** De */
+            de: string;
+            /** Para */
+            para: string;
+        };
+        /** AdminAcessoOut */
+        AdminAcessoOut: {
+            /** Numerica */
+            numerica: string;
+            /** Ip */
+            ip: string | null;
+            /** Navegador */
+            navegador: string;
+            /**
+             * Entrou Em
+             * Format: date-time
+             */
+            entrou_em: string;
+            /** Saiu Em */
+            saiu_em: string | null;
+        };
+        /** PagedAdminAcessoOut */
+        PagedAdminAcessoOut: {
+            /** Items */
+            items: components["schemas"]["AdminAcessoOut"][];
+            /** Count */
+            count: number;
+        };
+        /** AdminTentativaOut */
+        AdminTentativaOut: {
+            /** Numerica */
+            numerica: string;
+            /** Ip */
+            ip: string | null;
+            /** Falhas */
+            falhas: number;
+            /**
+             * Ultima Em
+             * Format: date-time
+             */
+            ultima_em: string;
+            /** Bloqueado */
+            bloqueado: boolean;
         };
     };
     responses: never;
@@ -1490,6 +2138,921 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_listar_usuarios: {
+        parameters: {
+            query?: {
+                busca?: string | null;
+                grupo?: string | null;
+                turma_id?: number | null;
+                ativo?: boolean | null;
+                page?: number;
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedAdminUsuarioOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_criar_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUsuarioCriarIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUsuarioCriadoOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_editar_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUsuarioEditarIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUsuarioOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_desativar_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUsuarioOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_reativar_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUsuarioOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_resetar_senha: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSenhaOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_listar_turmas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTurmaOut"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_criar_turma: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminTurmaIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTurmaOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_mover_cadetes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminMoverIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminQuantidadeOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_editar_turma: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                turma_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminTurmaEditarIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTurmaOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_formar_turma: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                turma_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminQuantidadeOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_listar_punicoes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPunicaoOut"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_criar_punicao: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPunicaoIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPunicaoOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_editar_punicao: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                punicao_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPunicaoEditarIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPunicaoOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_criar_previa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /**
+                     * Atualizar Existentes
+                     * @default false
+                     */
+                    atualizar_existentes?: boolean;
+                    /**
+                     * Criar Turmas
+                     * @default false
+                     */
+                    criar_turmas?: boolean;
+                    /**
+                     * Arquivo
+                     * Format: binary
+                     */
+                    arquivo: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminImportacaoOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_confirmar_importacao: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                importacao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminResultadoImportacaoOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_listar_auditoria: {
+        parameters: {
+            query?: {
+                inicio?: string | null;
+                fim?: string | null;
+                usuario_id?: number | null;
+                tipo?: ("anotacao" | "despacho" | "compensacao" | "mappa" | "usuario" | "turma" | "punicao") | null;
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAuditoriaPaginaOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_listar_acessos: {
+        parameters: {
+            query?: {
+                numerica?: string | null;
+                page?: number;
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedAdminAcessoOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_listar_tentativas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTentativaOut"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    administracao_api_liberar_bloqueio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                numerica: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminQuantidadeOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
             /** @description Not Found */
             404: {
                 headers: {
