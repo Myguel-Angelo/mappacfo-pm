@@ -312,6 +312,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/mappas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Mappas */
+        get: operations["mappas_api_listar_mappas"];
+        put?: never;
+        /** Gerar Mappa */
+        post: operations["mappas_api_gerar_mappa"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mappas/{mappa_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Publicar Mappa */
+        patch: operations["mappas_api_publicar_mappa"];
+        trace?: never;
+    };
+    "/api/mappas/{mappa_id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Baixar Mappa */
+        get: operations["mappas_api_baixar_mappa"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -556,6 +608,33 @@ export interface components {
         AnularIn: {
             /** Justificativa */
             justificativa: string;
+        };
+        /** MappaOut */
+        MappaOut: {
+            /** Id */
+            id: number;
+            /** Titulo */
+            titulo: string;
+            /**
+             * Gerado Em
+             * Format: date-time
+             */
+            gerado_em: string;
+            gerado_por: components["schemas"]["PessoaOut"];
+            /** Publicado */
+            publicado: boolean;
+            /** Total Anotacoes */
+            total_anotacoes: number;
+        };
+        /** MappaIn */
+        MappaIn: {
+            /** Titulo */
+            titulo: string;
+        };
+        /** PublicacaoIn */
+        PublicacaoIn: {
+            /** Publicado */
+            publicado: boolean;
         };
     };
     responses: never;
@@ -1265,6 +1344,152 @@ export interface operations {
                     "application/json": components["schemas"]["ErroOut"];
                 };
             };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    mappas_api_listar_mappas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappaOut"][];
+                };
+            };
+        };
+    };
+    mappas_api_gerar_mappa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MappaIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappaOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    mappas_api_publicar_mappa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mappa_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublicacaoIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappaOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
+    mappas_api_baixar_mappa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mappa_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
             /** @description Not Found */
             404: {
                 headers: {
