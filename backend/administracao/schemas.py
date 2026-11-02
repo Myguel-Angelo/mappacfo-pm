@@ -68,3 +68,53 @@ class AdminUsuarioCriadoOut(Schema):
 
 class AdminSenhaOut(Schema):
     senha_temporaria: str
+
+
+# Turmas
+
+
+class AdminTurmaOut(Schema):
+    id: int
+    nome: str
+    ano_ingresso: int
+    ativa: bool
+    total_cadetes: int  # cadetes ativos
+
+
+class AdminTurmaIn(Schema):
+    nome: str = Field(min_length=1, max_length=40)
+    ano_ingresso: int
+
+
+class AdminTurmaEditarIn(Schema):
+    nome: str | None = Field(default=None, min_length=1, max_length=40)
+    ano_ingresso: int | None = None
+    ativa: bool | None = None
+
+
+class AdminMoverIn(Schema):
+    cadete_ids: list[int]
+    destino_id: int
+
+
+class AdminQuantidadeOut(Schema):
+    quantidade: int
+
+
+# Tipos de punição
+
+
+class AdminPunicaoOut(Schema):
+    id: int
+    nome: str
+    ativo: bool
+    total_despachos: int
+
+
+class AdminPunicaoIn(Schema):
+    nome: str = Field(min_length=1, max_length=60)
+
+
+class AdminPunicaoEditarIn(Schema):
+    nome: str | None = Field(default=None, min_length=1, max_length=60)
+    ativo: bool | None = None

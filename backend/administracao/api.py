@@ -1,19 +1,29 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from django.db.models import Prefetch, Q
+from django.db.models import Count, Prefetch, Q
 from django.shortcuts import get_object_or_404
 from ninja import Query, Router, Status
 from ninja.pagination import PageNumberPagination, paginate
 
-from administracao import usuarios
+from administracao import cadastros, usuarios
 from administracao.schemas import (
+    AdminMoverIn,
+    AdminPunicaoEditarIn,
+    AdminPunicaoIn,
+    AdminPunicaoOut,
+    AdminQuantidadeOut,
     AdminSenhaOut,
+    AdminTurmaEditarIn,
+    AdminTurmaIn,
+    AdminTurmaOut,
     AdminUsuarioCriadoOut,
     AdminUsuarioCriarIn,
     AdminUsuarioEditarIn,
     AdminUsuarioFiltros,
     AdminUsuarioOut,
 )
+from anotacoes.models import TipoPunicao
+from contas.models import Turma
 from core.permissoes import exigir
 from core.schemas import ErroOut
 
@@ -98,3 +108,79 @@ def reativar_usuario(request, usuario_id: int):
 def resetar_senha(request, usuario_id: int):
     _admin(request)
     return {"senha_temporaria": usuarios.resetar_senha(request.user, _usuario(usuario_id))}
+
+
+# Turmas
+
+
+def _turmas():
+    return Turma.objects.annotate(
+        total_cadetes=Count("usuarios", filter=Q(usuarios__is_active=True))
+    ).order_by("-ativa", "-ano_ingresso", "nome")
+
+
+def _turma(turma_id):
+    return get_object_or_404(_turmas(), pk=turma_id)
+
+
+@router.get("/turmas", response={200: list[AdminTurmaOut], 403: ErroOut})
+def listar_turmas(request):
+    _admin(request)
+    return _turmas()
+
+
+@router.post("/turmas", response={201: AdminTurmaOut, **ERROS})
+def criar_turma(request, dados: AdminTurmaIn):
+    turma = cadastros.criar_turma(request.user, dados.nome, dados.ano_ingresso)
+    return Status(201, _turma(turma.pk))
+
+
+@router.post("/turmas/mover", response={200: AdminQuantidadeOut, **ERROS})
+def mover_cadetes(request, dados: AdminMoverIn):
+    quantidade = cadastros.mover_cadetes(request.user, dados.cadete_ids, dados.destino_id)
+    return {"quantidade": quantidade}
+
+
+@router.patch("/turmas/{turma_id}", response={200: AdminTurmaOut, **ERROS})
+def editar_turma(request, turma_id: int, dados: AdminTurmaEditarIn):
+    _admin(request)
+    cadastros.editar_turma(request.user, _turma(turma_id), **dados.dict(exclude_unset=True))
+    return _turma(turma_id)
+
+
+@router.post("/turmas/{turma_id}/formar", response={200: AdminQuantidadeOut, **ERROS})
+def formar_turma(request, turma_id: int):
+    _admin(request)
+    return {"quantidade": cadastros.formar_turma(request.user, _turma(turma_id))}
+
+
+# Tipos de punição
+
+
+def _punicoes():
+    return TipoPunicao.objects.annotate(total_despachos=Count("despachos")).order_by(
+        "-ativo", "nome"
+    )
+
+
+def _punicao(punicao_id):
+    return get_object_or_404(_punicoes(), pk=punicao_id)
+
+
+@router.get("/punicoes", response={200: list[AdminPunicaoOut], 403: ErroOut})
+def listar_punicoes(request):
+    _admin(request)
+    return _punicoes()
+
+
+@router.post("/punicoes", response={201: AdminPunicaoOut, **ERROS})
+def criar_punicao(request, dados: AdminPunicaoIn):
+    punicao = cadastros.criar_punicao(request.user, dados.nome)
+    return Status(201, _punicao(punicao.pk))
+
+
+@router.patch("/punicoes/{punicao_id}", response={200: AdminPunicaoOut, **ERROS})
+def editar_punicao(request, punicao_id: int, dados: AdminPunicaoEditarIn):
+    _admin(request)
+    cadastros.editar_punicao(request.user, _punicao(punicao_id), **dados.dict(exclude_unset=True))
+    return _punicao(punicao_id)
