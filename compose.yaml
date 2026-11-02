@@ -15,9 +15,13 @@ services:
       context: ./backend
       target: runtime
     env_file: .env
+    volumes:
+      # Mappas gerados: privados, só saem pela API. Entra no backup junto com o banco.
+      - privado:/data/privado
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   pgdata:
+  privado:
