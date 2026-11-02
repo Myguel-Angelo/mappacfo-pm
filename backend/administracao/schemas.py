@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import date, datetime
+from typing import Literal
 from uuid import UUID
 
 from ninja import Field, Schema
@@ -175,3 +176,83 @@ class AdminResultadoImportacaoOut(Schema):
     criados: list[AdminCadeteCriadoOut]
     atualizados: int
     ignorados: int
+
+
+# Auditoria
+
+
+class AdminAutorOut(Schema):
+    id: int
+    numerica: str
+    nome: str
+
+
+class AdminMudancaOut(Schema):
+    campo: str
+    de: str
+    para: str
+
+
+class AdminAuditoriaItemOut(Schema):
+    id: str
+    quando: datetime
+    usuario: AdminAutorOut | None  # None: mudança fora de uma requisição (migração, shell)
+    acao: str  # criou | alterou | apagou
+    tipo: str
+    tipo_rotulo: str
+    registro_id: int
+    descricao: str
+    motivo: str | None
+    mudancas: list[AdminMudancaOut]
+
+
+class AdminAuditoriaPaginaOut(Schema):
+    items: list[AdminAuditoriaItemOut]
+    count: int
+
+
+class AdminAuditoriaFiltros(Schema):
+    inicio: date | None = None
+    fim: date | None = None
+    usuario_id: int | None = None
+    tipo: (
+        Literal["anotacao", "despacho", "compensacao", "mappa", "usuario", "turma", "punicao"]
+        | None
+    ) = None
+    page: int = Field(default=1, ge=1)
+
+
+class AdminAcessoOut(Schema):
+    numerica: str
+    ip: str | None
+    navegador: str
+    entrou_em: datetime
+    saiu_em: datetime | None
+
+    @staticmethod
+    def resolve_numerica(obj):
+        return obj.username or ""
+
+    @staticmethod
+    def resolve_ip(obj):
+        return obj.ip_address
+
+    @staticmethod
+    def resolve_navegador(obj):
+        return obj.user_agent or ""
+
+    @staticmethod
+    def resolve_entrou_em(obj):
+        return obj.attempt_time
+
+    @staticmethod
+    def resolve_saiu_em(obj):
+        return obj.logout_time
+
+
+class AdminTentativaOut(Schema):
+    numerica: str
+    ip: str | None
+    falhas: int
+    ultima_em: datetime
+    bloqueado: bool

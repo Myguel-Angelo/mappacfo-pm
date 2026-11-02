@@ -1,16 +1,23 @@
 from uuid import UUID
 
+from axes.models import AccessAttempt, AccessLog
+from axes.utils import reset as axes_reset
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.db.models import Count, Prefetch, Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from ninja import File, Form, Query, Router, Status
 from ninja.files import UploadedFile
 from ninja.pagination import PageNumberPagination, paginate
 
-from administracao import cadastros, importacao, usuarios
+from administracao import auditoria, cadastros, importacao, usuarios
 from administracao.models import ImportacaoCadetes
 from administracao.schemas import (
+    AdminAcessoOut,
+    AdminAuditoriaFiltros,
+    AdminAuditoriaPaginaOut,
     AdminImportacaoOpcoesIn,
     AdminImportacaoOut,
     AdminMoverIn,
@@ -20,6 +27,7 @@ from administracao.schemas import (
     AdminQuantidadeOut,
     AdminResultadoImportacaoOut,
     AdminSenhaOut,
+    AdminTentativaOut,
     AdminTurmaEditarIn,
     AdminTurmaIn,
     AdminTurmaOut,
@@ -216,3 +224,48 @@ def confirmar_importacao(request, importacao_id: UUID):
     _admin(request)
     previa = get_object_or_404(ImportacaoCadetes, pk=importacao_id)
     return importacao.confirmar(request.user, previa)
+
+
+# Auditoria
+
+
+@router.get("/auditoria", response={200: AdminAuditoriaPaginaOut, 403: ErroOut})
+def listar_auditoria(request, filtros: Query[AdminAuditoriaFiltros]):
+    _admin(request)
+    return auditoria.linha_do_tempo(filtros)
+
+
+@router.get("/acessos", response={200: list[AdminAcessoOut], 403: ErroOut})
+@paginate(PageNumberPagination, page_size=50)
+def listar_acessos(request, numerica: str | None = None):
+    """Logins com sucesso (django-axes)."""
+    _admin(request)
+    qs = AccessLog.objects.order_by("-attempt_time")
+    if numerica:
+        qs = qs.filter(username__iexact=numerica.strip())
+    return qs
+
+
+@router.get("/bloqueios", response={200: list[AdminTentativaOut], 403: ErroOut})
+def listar_tentativas(request):
+    """Falhas de login recentes por numérica + IP; bloqueado = atingiu o limite e ainda
+    está no período de espera."""
+    _admin(request)
+    limite = timezone.now() - settings.AXES_COOLOFF_TIME
+    return [
+        {
+            "numerica": t.username or "",
+            "ip": t.ip_address,
+            "falhas": t.failures_since_start,
+            "ultima_em": t.attempt_time,
+            "bloqueado": t.failures_since_start >= settings.AXES_FAILURE_LIMIT
+            and t.attempt_time >= limite,
+        }
+        for t in AccessAttempt.objects.order_by("-attempt_time")[:200]
+    ]
+
+
+@router.post("/bloqueios/{numerica}/liberar", response={200: AdminQuantidadeOut, **ERROS})
+def liberar_bloqueio(request, numerica: str):
+    _admin(request)
+    return {"quantidade": axes_reset(username=numerica)}
