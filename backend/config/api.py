@@ -1,6 +1,7 @@
 from django.db import DatabaseError, connection
 from ninja import NinjaAPI, Schema, Status
 
+from administracao.api import router as admin_router
 from anotacoes.api import router as anotacoes_router
 from contas.api import router as auth_router
 from core.auth import sessao
@@ -14,6 +15,7 @@ instalar_handlers(api)
 api.add_router("/auth", auth_router)
 api.add_router("/", anotacoes_router)
 api.add_router("/mappas", mappas_router)
+api.add_router("/admin", admin_router)
 
 
 class HealthOut(Schema):
