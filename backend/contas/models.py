@@ -14,6 +14,9 @@ class Turma(models.Model):
         return self.nome
 
 
+GRUPO_CADETE = "Cadete"
+
+
 class UsuarioManager(BaseUserManager):
     use_in_migrations = True
 
@@ -32,6 +35,11 @@ class UsuarioManager(BaseUserManager):
         if not extra["is_staff"] or not extra["is_superuser"]:
             raise ValueError("Superusuário precisa de is_staff e is_superuser.")
         return self.create_user(numerica, password, **extra)
+
+    def cadetes(self):
+        """Cadetes ativos. Ser cadete é identidade (grupo); o que cada um pode fazer são
+        permissões."""
+        return self.filter(is_active=True, groups__name=GRUPO_CADETE)
 
 
 class Usuario(AbstractUser):
