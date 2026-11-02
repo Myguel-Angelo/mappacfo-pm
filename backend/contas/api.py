@@ -12,7 +12,7 @@ from core.schemas import ErroOut
 router = Router(tags=["auth"])
 
 
-class TurmaOut(Schema):
+class TurmaResumoOut(Schema):
     id: int
     nome: str
 
@@ -21,7 +21,8 @@ class MeOut(Schema):
     numerica: str
     nome: str
     email: str
-    turma: TurmaOut | None
+    turma: TurmaResumoOut | None
+    perfil: str
     grupos: list[str]
     permissoes: list[str]
     deve_trocar_senha: bool
@@ -48,6 +49,7 @@ def dados_me(usuario):
         "nome": usuario.nome,
         "email": usuario.email,
         "turma": usuario.turma,
+        "perfil": usuario.perfil,
         "grupos": sorted(usuario.groups.values_list("name", flat=True)),
         "permissoes": sorted(usuario.get_all_permissions()),
         "deve_trocar_senha": usuario.deve_trocar_senha,

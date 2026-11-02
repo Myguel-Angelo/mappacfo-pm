@@ -85,7 +85,7 @@ def _compensar(cadete):
 #                     cadete  c/anotar  oficial  comandante
 MATRIZ = {
     "ver_minhas": (200, 200, 200, 200),
-    "ver_estatisticas": (200, 200, 200, 200),
+    "ver_estatisticas": (403, 403, 403, 200),
     "listar_cadetes": (403, 200, 200, 200),
     "listar_anotacoes": (403, 403, 200, 200),
     "anotar": (403, 201, 201, 201),
@@ -286,3 +286,14 @@ def test_historico_registra_quem_despachou(api, comandante):
     assert ultima.status == Anotacao.Status.DESPACHADA
     assert ultima.history_user == comandante
     assert ultima.prev_record.status == Anotacao.Status.NOTIFICADA
+
+
+def test_autor_vem_com_perfil_para_exibicao(api, comandante):
+    AnotacaoFactory(autor=comandante)
+    AnotacaoFactory()  # autor oficial (padrão da factory)
+    AnotacaoFactory(autor=UsuarioFactory(cadete=True, perms=["anotacoes.anotar"]))
+    api.login(comandante.numerica)
+
+    perfis = {a["autor"]["perfil"] for a in api.get("anotacoes").json()["items"]}
+
+    assert perfis == {"Oficial Comandante", "Oficial", "Cadete"}

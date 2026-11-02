@@ -16,6 +16,15 @@ class Turma(models.Model):
 
 GRUPO_CADETE = "Cadete"
 
+# Como cada grupo aparece na tela ("Oficial Comandante Fulano"), na ordem de prioridade.
+# Só exibição: o que o usuário pode fazer vem das permissões, nunca do nome do grupo.
+PERFIS = [
+    ("Comandante", "Oficial Comandante"),
+    ("Oficial", "Oficial"),
+    ("Administrador", "Administrador"),
+    (GRUPO_CADETE, "Cadete"),
+]
+
 
 class UsuarioManager(BaseUserManager):
     use_in_migrations = True
@@ -68,6 +77,12 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return f"{self.numerica} — {self.nome}"
+
+    @property
+    def perfil(self):
+        # groups.all() aproveita o prefetch_related("groups") das listagens.
+        grupos = {g.name for g in self.groups.all()}
+        return next((rotulo for grupo, rotulo in PERFIS if grupo in grupos), "")
 
     def get_full_name(self):
         return self.nome

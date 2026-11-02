@@ -1,0 +1,5 @@
+# O Prettier exige LF; sem isto o core.autocrlf do Windows faz o checkout com CRLF
+# e o format:check falha num clone novo.
+* text=auto eol=lf
+*.ico binary
+*.webp binary

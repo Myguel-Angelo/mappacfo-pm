@@ -11,3 +11,27 @@ services:
       - ./backend:/app
     ports:
       - "127.0.0.1:8000:8000"
+
+  # Só em dev: em produção o build do frontend é servido pelo Caddy (fase 8).
+  web:
+    image: node:24
+    working_dir: /app
+    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm dev"
+    environment:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      API_PROXY_TARGET: http://api:8000
+      VITE_USE_POLLING: "true"
+      # Store do pnpm num volume nomeado: recriar o container não baixa tudo de novo.
+      npm_config_store_dir: /pnpm-store
+    volumes:
+      - ./frontend:/app
+      # node_modules do container (Linux) fica num volume anônimo, separado do host (Windows).
+      - /app/node_modules
+      - pnpm-store:/pnpm-store
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on:
+      - api
+
+volumes:
+  pnpm-store:

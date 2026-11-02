@@ -17,6 +17,10 @@ class PessoaOut(Schema):
     nome: str
 
 
+class AutorOut(PessoaOut):
+    perfil: str  # "Oficial Comandante", "Oficial", "Cadete": só para exibição
+
+
 class CadeteOut(PessoaOut):
     turma: TurmaOut | None
 
@@ -41,7 +45,7 @@ class AnotacaoOut(Schema):
     motivo: str
     criada_em: datetime
     cadete: CadeteOut
-    autor: PessoaOut
+    autor: AutorOut
     despacho: DespachoOut | None
     # Id da outra anotação da compensação (a negativa, se esta é a positiva, e vice-versa).
     compensada_com_id: int | None

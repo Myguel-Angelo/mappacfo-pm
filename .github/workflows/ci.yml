@@ -46,3 +46,50 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # Versão do pnpm vem do campo packageManager do package.json
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+      # Os tipos commitados precisam bater com a API atual. O schema sai direto do Django
+      # (sem servidor nem banco: a URL do banco só é lida, não conectada).
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.5"
+          enable-cache: true
+      - name: tipos da api atualizados
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+          DJANGO_SECRET_KEY: ci-nao-e-segredo
+          DATABASE_URL: postgres://x:x@localhost:5432/x
+        run: |
+          cd ../backend
+          uv sync --locked
+          uv run python -c "import django, json; django.setup(); from config.api import api; print(json.dumps(api.get_openapi_schema()))" > ../openapi.json
+          cd ../frontend
+          pnpm exec openapi-typescript ../openapi.json -o src/api/schema.d.ts
+          git diff --exit-code src/api/schema.d.ts || (echo "::error::schema.d.ts desatualizado: rode just api-types e commite" && exit 1)
