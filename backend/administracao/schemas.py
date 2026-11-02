@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from ninja import Field, Schema
 
@@ -118,3 +119,59 @@ class AdminPunicaoIn(Schema):
 class AdminPunicaoEditarIn(Schema):
     nome: str | None = Field(default=None, min_length=1, max_length=60)
     ativo: bool | None = None
+
+
+# Importação de cadetes
+
+
+class AdminLinhaImportacaoOut(Schema):
+    linha: int
+    numerica: str
+    nome: str
+    turma: str
+    email: str
+    acao: str  # criar | atualizar | ignorar | erro
+    erros: list[str]
+    mudancas: list[str]
+
+
+class AdminTotaisImportacaoOut(Schema):
+    criar: int
+    atualizar: int
+    ignorar: int
+    erro: int
+
+
+class AdminImportacaoOut(Schema):
+    id: UUID
+    nome_arquivo: str
+    criada_em: datetime
+    expira_em: datetime
+    atualizar_existentes: bool
+    criar_turmas: bool
+    linhas: list[AdminLinhaImportacaoOut]
+    totais: AdminTotaisImportacaoOut
+
+    @staticmethod
+    def resolve_totais(obj):
+        from administracao.importacao import totais
+
+        return totais(obj.linhas)
+
+
+class AdminImportacaoOpcoesIn(Schema):
+    atualizar_existentes: bool = False
+    criar_turmas: bool = False
+
+
+class AdminCadeteCriadoOut(Schema):
+    numerica: str
+    nome: str
+    turma: str
+    senha_temporaria: str
+
+
+class AdminResultadoImportacaoOut(Schema):
+    criados: list[AdminCadeteCriadoOut]
+    atualizados: int
+    ignorados: int

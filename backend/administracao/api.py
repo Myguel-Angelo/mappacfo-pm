@@ -1,17 +1,24 @@
+from uuid import UUID
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.db.models import Count, Prefetch, Q
 from django.shortcuts import get_object_or_404
-from ninja import Query, Router, Status
+from ninja import File, Form, Query, Router, Status
+from ninja.files import UploadedFile
 from ninja.pagination import PageNumberPagination, paginate
 
-from administracao import cadastros, usuarios
+from administracao import cadastros, importacao, usuarios
+from administracao.models import ImportacaoCadetes
 from administracao.schemas import (
+    AdminImportacaoOpcoesIn,
+    AdminImportacaoOut,
     AdminMoverIn,
     AdminPunicaoEditarIn,
     AdminPunicaoIn,
     AdminPunicaoOut,
     AdminQuantidadeOut,
+    AdminResultadoImportacaoOut,
     AdminSenhaOut,
     AdminTurmaEditarIn,
     AdminTurmaIn,
@@ -184,3 +191,28 @@ def editar_punicao(request, punicao_id: int, dados: AdminPunicaoEditarIn):
     _admin(request)
     cadastros.editar_punicao(request.user, _punicao(punicao_id), **dados.dict(exclude_unset=True))
     return _punicao(punicao_id)
+
+
+# Importação de cadetes
+
+
+@router.post("/importacoes", response={201: AdminImportacaoOut, **ERROS})
+def criar_previa(request, opcoes: Form[AdminImportacaoOpcoesIn], arquivo: File[UploadedFile]):
+    previa = importacao.criar_previa(
+        request.user,
+        arquivo.name or "planilha",
+        arquivo.read(importacao.TAMANHO_MAXIMO + 1),
+        atualizar_existentes=opcoes.atualizar_existentes,
+        criar_turmas=opcoes.criar_turmas,
+    )
+    return Status(201, previa)
+
+
+@router.post(
+    "/importacoes/{importacao_id}/confirmar",
+    response={200: AdminResultadoImportacaoOut, **ERROS},
+)
+def confirmar_importacao(request, importacao_id: UUID):
+    _admin(request)
+    previa = get_object_or_404(ImportacaoCadetes, pk=importacao_id)
+    return importacao.confirmar(request.user, previa)
