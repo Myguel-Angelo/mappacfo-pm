@@ -30,11 +30,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     "simple_history",
     "axes",
     "contas",
     "anotacoes",
     "mappas",
+    "administracao",
 ]
 
 AUTH_USER_MODEL = "contas.Usuario"

@@ -12,6 +12,17 @@ export type Anotacao = S["AnotacaoOut"];
 export type PaginaAnotacoes = S["PagedAnotacaoOut"];
 export type Estatisticas = S["EstatisticasOut"];
 export type Mappa = S["MappaOut"];
+
+export type AdminUsuario = S["AdminUsuarioOut"];
+export type AdminTurma = S["AdminTurmaOut"];
+export type AdminPunicao = S["AdminPunicaoOut"];
+export type AdminImportacao = S["AdminImportacaoOut"];
+export type AdminLinhaImportacao = S["AdminLinhaImportacaoOut"];
+export type AdminResultadoImportacao = S["AdminResultadoImportacaoOut"];
+export type AdminAuditoriaItem = S["AdminAuditoriaItemOut"];
+export type AdminAuditoriaPagina = S["AdminAuditoriaPaginaOut"];
+export type AdminAcesso = S["AdminAcessoOut"];
+export type AdminTentativa = S["AdminTentativaOut"];
 export type TipoAnotacao = S["TipoAnotacao"];
 export type StatusAnotacao = S["StatusAnotacao"];
 

@@ -11,7 +11,7 @@ Esta é a versão 2.0, reescrita do zero a partir do sistema antigo (Django + te
 
 ## Estado atual
 
-Fases 1 a 5: Postgres + API Django (contas, sessão com CSRF, anotações, despacho, compensação e mappa em Excel com download autenticado) e o frontend em React para cadete, oficial e comandante. Próxima: fase 6, painel administrativo.
+Fases 1 a 6: Postgres + API Django (contas, sessão com CSRF, anotações, despacho, compensação, mappa em Excel com download autenticado e painel administrativo) e o frontend em React para cadete, oficial, comandante e administrador. Próxima: fase 7, automações.
 
 ## Rodando localmente
 
@@ -28,7 +28,7 @@ docker compose exec api python manage.py seed_dev   # usuários e turmas de test
 - API: http://localhost:8000/api/health deve responder `{"status": "ok"}`
 - Documentação interativa: http://localhost:8000/api/docs
 
-O `seed_dev` cria `comandante`, `oficial`, `cadete-anotador`, `admin` e os cadetes `1001`–`1006`, `2001`–`2006`, `3001`–`3006`, todos com a senha `Senha-dev-123`.
+O `seed_dev` cria `comandante`, `oficial`, `cadete-anotador`, `admin` (acessa a Administração: usuários, turmas, punições, importação de cadetes e auditoria) e os cadetes `1001`–`1006`, `2001`–`2006`, `3001`–`3006`, todos com a senha `Senha-dev-123`.
 
 | Comando | O que faz |
 | --- | --- |

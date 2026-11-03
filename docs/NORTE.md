@@ -218,11 +218,11 @@ O passo a passo completo de cada fase está em [plano/](plano/README.md).
 
 ### Fase 6 — Painel administrativo
 
-- [ ] Usuários: criar, editar, desativar, resetar senha, mudar grupo
-- [ ] Turmas: criar, arquivar, mover cadetes
-- [ ] Tipos de punição
-- [ ] Importação de cadetes por CSV/XLSX com prévia e validação antes de gravar
-- [ ] Tela de auditoria: quem fez o quê e quando
+- [x] Usuários: criar, editar, desativar, resetar senha, mudar grupo
+- [x] Turmas: criar, arquivar, mover cadetes
+- [x] Tipos de punição
+- [x] Importação de cadetes por CSV/XLSX com prévia e validação antes de gravar
+- [x] Tela de auditoria: quem fez o quê e quando
 
 **Testar à mão:** importar uma planilha com erros de propósito (numérica repetida, turma inexistente).
 

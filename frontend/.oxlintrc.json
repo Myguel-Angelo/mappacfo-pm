@@ -14,7 +14,8 @@
     "jsx-a11y/label-has-associated-control": [
       "warn",
       {
-        "depth": 4
+        "depth": 4,
+        "controlComponents": ["SelectNativo", "Input", "Textarea", "InputSenha"]
       }
     ]
   },

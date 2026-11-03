@@ -6,6 +6,7 @@ import {
   KeyRound,
   LogOut,
   Menu,
+  Settings,
   Users,
   X,
   type LucideIcon,
@@ -49,6 +50,12 @@ const MENU: ItemMenu[] = [
     rotulo: "Despachadas",
     icone: FileCheck,
     permissao: "anotacoes.despachar",
+  },
+  {
+    rota: "/admin",
+    rotulo: "Administração",
+    icone: Settings,
+    permissao: "contas.gerenciar_usuarios",
   },
   { rota: "/trocar-senha", rotulo: "Alterar senha", icone: KeyRound },
 ];

@@ -1,11 +1,13 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 class Turma(models.Model):
     nome = models.CharField(max_length=40, unique=True)
     ano_ingresso = models.PositiveSmallIntegerField()
     ativa = models.BooleanField(default=True)
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["-ano_ingresso", "nome"]
@@ -15,6 +17,17 @@ class Turma(models.Model):
 
 
 GRUPO_CADETE = "Cadete"
+
+
+class HistoricoDeUsuario(HistoricalRecords):
+    """Histórico que ignora o save do login (só last_login, que fica fora do histórico):
+    sem isto, cada login viraria uma linha vazia na auditoria."""
+
+    def post_save(self, instance, created, using=None, **kwargs):
+        if kwargs.get("update_fields") == frozenset({"last_login"}):
+            return
+        super().post_save(instance, created, using=using, **kwargs)
+
 
 # Como cada grupo aparece na tela ("Oficial Comandante Fulano"), na ordem de prioridade.
 # Só exibição: o que o usuário pode fazer vem das permissões, nunca do nome do grupo.
@@ -64,6 +77,8 @@ class Usuario(AbstractUser):
         Turma, null=True, blank=True, on_delete=models.PROTECT, related_name="usuarios"
     )
     deve_trocar_senha = models.BooleanField(default=True)
+    # Auditoria (fase 6): grupos entram como m2m; hash de senha e último login ficam fora.
+    history = HistoricoDeUsuario(excluded_fields=["password", "last_login"], m2m_fields=["groups"])
 
     objects = UsuarioManager()
 
