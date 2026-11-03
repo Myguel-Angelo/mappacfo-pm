@@ -11,6 +11,7 @@ export type Punicao = S["PunicaoOut"];
 export type Anotacao = S["AnotacaoOut"];
 export type PaginaAnotacoes = S["PagedAnotacaoOut"];
 export type Estatisticas = S["EstatisticasOut"];
+export type Mappa = S["MappaOut"];
 export type TipoAnotacao = S["TipoAnotacao"];
 export type StatusAnotacao = S["StatusAnotacao"];
 

@@ -209,10 +209,10 @@ O passo a passo completo de cada fase está em [plano/](plano/README.md).
 
 ### Fase 5 — Mappa e arquivos
 
-- [ ] Gerar o Excel com `openpyxl` direto, a partir das anotações despachadas
-- [ ] Exportar arquiva as anotações (não apaga) e liga ao Mappa
-- [ ] **(urgente)** Publicar/despublicar e download só por view autenticada
-- [ ] Nome do arquivo gerado pelo sistema; o título digitado fica só no banco
+- [x] Gerar o Excel com `openpyxl` direto, a partir das anotações despachadas
+- [x] Exportar arquiva as anotações (não apaga) e liga ao Mappa
+- [x] **(urgente)** Publicar/despublicar e download só por view autenticada
+- [x] Nome do arquivo gerado pelo sistema; o título digitado fica só no banco
 
 **Testar à mão:** copiar o link de download e abrir numa aba anônima: tem que negar.
 

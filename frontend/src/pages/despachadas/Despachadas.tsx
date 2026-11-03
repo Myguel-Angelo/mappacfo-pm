@@ -1,4 +1,4 @@
-import { Ban, CircleCheck, Pencil } from "lucide-react";
+import { Ban, CircleCheck, FileSpreadsheet, Pencil } from "lucide-react";
 import { useState } from "react";
 
 import { useAnotacoes, useTurmas } from "@/api/anotacoes";
@@ -12,8 +12,10 @@ import {
 } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
 import { Button } from "@/components/ui/button";
+import { temPermissao, useUsuario } from "@/auth/sessao";
 import { formatarData, formatarDataHora, pessoaComPerfil } from "@/lib/formato";
 import { DialogAnular, DialogCumprida, DialogDespacho } from "@/pages/despachar/dialogos";
+import { DialogGerarMappa } from "@/pages/mappas/DialogGerarMappa";
 
 type Acao = { tipo: "editar" | "cumprida" | "anular"; anotacao: Anotacao };
 
@@ -21,8 +23,13 @@ export function Despachadas() {
   const [turmaId, setTurmaId] = useState<number>();
   const [pagina, setPagina] = useState(1);
   const [acao, setAcao] = useState<Acao | null>(null);
+  const [gerando, setGerando] = useState(false);
+  const usuario = useUsuario();
   const turmas = useTurmas();
   const consulta = useAnotacoes({ status: "despachada", turma_id: turmaId, page: pagina });
+  // O mappa leva todas as despachadas, de todas as turmas, independente do filtro.
+  const todas = useAnotacoes({ status: "despachada", page: 1 });
+  const totalMappa = todas.data?.count ?? 0;
 
   if (consulta.data && consulta.data.items.length === 0 && pagina > 1) setPagina(pagina - 1);
 
@@ -101,7 +108,18 @@ export function Despachadas() {
 
   return (
     <>
-      <Titulo>Anotações despachadas</Titulo>
+      <Titulo
+        acao={
+          temPermissao(usuario, "anotacoes.exportar") &&
+          totalMappa > 0 && (
+            <Button variant="sucesso" onClick={() => setGerando(true)}>
+              <FileSpreadsheet aria-hidden /> Gerar mappa
+            </Button>
+          )
+        }
+      >
+        Anotações despachadas
+      </Titulo>
       <div className="mb-4">
         <FiltroTurma
           turmas={turmas.data}
@@ -141,6 +159,7 @@ export function Despachadas() {
         onClose={fechar}
       />
       <DialogAnular anotacao={acao?.tipo === "anular" ? acao.anotacao : null} onClose={fechar} />
+      <DialogGerarMappa aberto={gerando} total={totalMappa} onClose={() => setGerando(false)} />
     </>
   );
 }

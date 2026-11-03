@@ -6,7 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
     PATH="/opt/venv/bin:$PATH"
 COPY --from=ghcr.io/astral-sh/uv:0.13.5 /uv /usr/local/bin/uv
-RUN useradd --create-home app
+# /data/privado é o ponto de montagem do volume privado: o volume nomeado herda o dono da pasta.
+RUN useradd --create-home app \
+    && mkdir -p /data/privado && chown app:app /data/privado
 WORKDIR /app
 
 # Dependências antes do código: o cache desta camada só invalida quando o lock muda.

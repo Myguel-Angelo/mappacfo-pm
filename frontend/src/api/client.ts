@@ -17,7 +17,7 @@ export async function garantirCsrf(): Promise<void> {
 }
 
 type Opcoes = {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   signal?: AbortSignal;
 };

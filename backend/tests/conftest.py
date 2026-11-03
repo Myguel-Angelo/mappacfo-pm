@@ -31,6 +31,9 @@ class ClienteApi:
     def put(self, caminho, dados=None, *, com_csrf=True):
         return self._enviar("put", caminho, dados, com_csrf)
 
+    def patch(self, caminho, dados=None, *, com_csrf=True):
+        return self._enviar("patch", caminho, dados, com_csrf)
+
     def _enviar(self, metodo, caminho, dados, com_csrf):
         headers = {}
         if com_csrf and "csrftoken" in self.client.cookies:
@@ -107,3 +110,10 @@ def hoje():
 @pytest.fixture
 def amanha(hoje):
     return hoje + timedelta(days=1)
+
+
+@pytest.fixture
+def armazenamento(settings, tmp_path):
+    """Storage privado numa pasta temporária (o padrão /data/privado só existe no container)."""
+    settings.PRIVATE_STORAGE_ROOT = str(tmp_path / "privado")
+    return tmp_path / "privado"

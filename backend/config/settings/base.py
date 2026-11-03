@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "axes",
     "contas",
     "anotacoes",
+    "mappas",
 ]
 
 AUTH_USER_MODEL = "contas.Usuario"
@@ -123,6 +124,11 @@ LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
+
+
+# Arquivos privados (o mappa): volume próprio, fora do MEDIA_ROOT, nunca servido pelo proxy.
+# Só saem por view autenticada. O volume precisa entrar no backup junto com o banco (fase 8).
+PRIVATE_STORAGE_ROOT = env("PRIVATE_STORAGE_ROOT", default="/data/privado")
 
 
 # Static files

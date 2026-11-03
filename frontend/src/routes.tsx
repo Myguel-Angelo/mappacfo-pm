@@ -7,6 +7,7 @@ import { Despachadas } from "@/pages/despachadas/Despachadas";
 import { Despachar } from "@/pages/despachar/Despachar";
 import { Inicio } from "@/pages/inicio/Inicio";
 import { Login } from "@/pages/login/Login";
+import { Mappas } from "@/pages/mappas/Mappas";
 import { MinhasAnotacoes } from "@/pages/minhas-anotacoes/MinhasAnotacoes";
 import { NaoEncontrada } from "@/pages/NaoEncontrada";
 import { TrocarSenha } from "@/pages/trocar-senha/TrocarSenha";
@@ -25,6 +26,7 @@ export function Rotas() {
         <Route index element={<Inicio />} />
         <Route path="trocar-senha" element={<TrocarSenha />} />
         <Route path="minhas-anotacoes" element={<MinhasAnotacoes />} />
+        <Route path="mappas" element={<Mappas />} />
         <Route
           path="cadetes"
           element={

@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  FolderOpen,
   FileCheck,
   FileText,
   KeyRound,
@@ -33,6 +34,13 @@ const MENU: ItemMenu[] = [
     icone: BookOpen,
     // Só quem é de uma turma (cadete) recebe anotações.
     visivel: (usuario) => usuario.turma !== null,
+  },
+  {
+    rota: "/mappas",
+    rotulo: "Mappas",
+    icone: FolderOpen,
+    // Cadetes baixam os publicados; quem exporta gerencia todos.
+    visivel: (usuario) => usuario.turma !== null || temPermissao(usuario, "anotacoes.exportar"),
   },
   { rota: "/cadetes", rotulo: "Cadetes", icone: Users, permissao: "anotacoes.anotar" },
   { rota: "/despachar", rotulo: "Anotações", icone: FileText, permissao: "anotacoes.despachar" },
