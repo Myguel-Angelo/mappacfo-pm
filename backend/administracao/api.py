@@ -20,6 +20,7 @@ from administracao.schemas import (
     AdminAuditoriaPaginaOut,
     AdminImportacaoOpcoesIn,
     AdminImportacaoOut,
+    AdminLoteIn,
     AdminMoverIn,
     AdminPunicaoEditarIn,
     AdminPunicaoIn,
@@ -95,6 +96,20 @@ def listar_usuarios(request, filtros: Query[AdminUsuarioFiltros]):
 def criar_usuario(request, dados: AdminUsuarioCriarIn):
     usuario, senha = usuarios.criar_usuario(request.user, **dados.dict())
     return Status(201, {"usuario": _usuario(usuario.pk), "senha_temporaria": senha})
+
+
+@router.post("/usuarios/lote", response={200: AdminQuantidadeOut, **ERROS})
+def usuarios_em_lote(request, dados: AdminLoteIn):
+    """Ações nos usuários marcados na lista. Mudar de turma em lote é /turmas/mover.
+    Vem antes de /usuarios/{usuario_id}: senão "lote" cai naquela rota."""
+    _admin(request)
+    if dados.acao in ("desativar", "reativar"):
+        ativo = dados.acao == "reativar"
+        quantidade = usuarios.definir_ativo_em_lote(request.user, dados.usuario_ids, ativo)
+    else:
+        anotar = dados.acao == "permitir_anotar"
+        quantidade = usuarios.definir_anotar_em_lote(request.user, dados.usuario_ids, anotar)
+    return {"quantidade": quantidade}
 
 
 @router.patch("/usuarios/{usuario_id}", response={200: AdminUsuarioOut, **ERROS})
