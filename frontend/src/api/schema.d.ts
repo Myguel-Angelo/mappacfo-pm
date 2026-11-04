@@ -1194,6 +1194,8 @@ export interface components {
              * @default 1
              */
             page: number;
+            /** Page Size */
+            page_size?: number | null;
         };
         /** AdminAuditoriaItemOut */
         AdminAuditoriaItemOut: {
@@ -2926,6 +2928,7 @@ export interface operations {
                 usuario_id?: number | null;
                 tipo?: ("anotacao" | "despacho" | "compensacao" | "mappa" | "usuario" | "turma" | "punicao") | null;
                 page?: number;
+                page_size?: number | null;
             };
             header?: never;
             path?: never;

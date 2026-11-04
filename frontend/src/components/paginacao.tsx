@@ -1,13 +1,22 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { POR_PAGINA } from "@/lib/paginacao";
 
-/** Páginas visíveis: a primeira, a última e uma de cada lado da atual; "…" no salto. */
+/**
+ * Páginas visíveis: a primeira, a última e uma de cada lado da atual; "…" no salto. Um salto
+ * de uma página só mostra o número, que ocupa o mesmo espaço das reticências.
+ */
 function faixa(pagina: number, paginas: number): (number | "…")[] {
   const numeros = [...new Set([1, pagina - 1, pagina, pagina + 1, paginas])]
     .filter((n) => n >= 1 && n <= paginas)
     .sort((a, b) => a - b);
-  return numeros.flatMap((n, i) => (i > 0 && n - numeros[i - 1] > 1 ? ["…" as const, n] : [n]));
+  return numeros.flatMap((n, i) => {
+    const anterior = numeros[i - 1];
+    if (i === 0 || n - anterior === 1) return [n];
+    return n - anterior === 2 ? [anterior + 1, n] : ["…" as const, n];
+  });
 }
 
 export function Paginacao({
@@ -22,7 +31,12 @@ export function Paginacao({
   onChange: (pagina: number) => void;
 }) {
   const paginas = Math.max(1, Math.ceil(total / porPagina));
-  if (paginas === 1) return null;
+  // A última página esvaziou (despachou, desativou o último item dela): vai para a que existe.
+  const passou = pagina > paginas;
+  useEffect(() => {
+    if (passou) onChange(paginas);
+  }, [passou, paginas, onChange]);
+  if (paginas === 1 || passou) return null;
 
   function ir(destino: number) {
     onChange(destino);

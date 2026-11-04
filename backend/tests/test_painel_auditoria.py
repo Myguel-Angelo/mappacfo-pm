@@ -99,6 +99,8 @@ def test_paginacao_intercala_as_fontes_mais_recentes_primeiro(api_admin):
     ids = [i["id"] for i in primeira["items"] + segunda["items"]]
     assert len(ids) == len(set(ids))
 
+    assert len(api_admin.get("admin/auditoria?page_size=7").json()["items"]) == 7
+
 
 def test_acessos_e_bloqueios(api_admin, admin):
     alvo = UsuarioFactory()

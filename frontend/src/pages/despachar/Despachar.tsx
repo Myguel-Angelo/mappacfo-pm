@@ -35,9 +35,6 @@ export function Despachar() {
   const turmas = useTurmas();
   const consulta = useAnotacoes({ status: "notificada", turma_id: turmaId, page: pagina });
 
-  // Despachou o último item da última página: volta uma página.
-  if (consulta.data && consulta.data.items.length === 0 && pagina > 1) setPagina(pagina - 1);
-
   const colunas: Coluna<Anotacao>[] = [
     {
       titulo: "Cadete",

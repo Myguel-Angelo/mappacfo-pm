@@ -26,8 +26,6 @@ export function Despachadas() {
   const todas = useAnotacoes({ status: "despachada", page: 1 });
   const totalMappa = todas.data?.count ?? 0;
 
-  if (consulta.data && consulta.data.items.length === 0 && pagina > 1) setPagina(pagina - 1);
-
   const colunas: Coluna<Anotacao>[] = [
     {
       titulo: "Cadete",

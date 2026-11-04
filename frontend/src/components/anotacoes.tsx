@@ -106,53 +106,56 @@ export function TabelaResponsiva<T>({
   legenda: string;
 }) {
   return (
-    <table className="w-full border-separate border-spacing-0 text-sm">
-      <caption className="sr-only">{legenda}</caption>
-      <thead className="max-md:sr-only">
-        <tr>
-          {colunas.map((coluna) => (
-            <th
-              key={coluna.titulo}
-              scope="col"
-              className="bg-primary px-3 py-2 text-left font-bold text-primary-foreground first:rounded-tl-lg last:rounded-tr-lg"
-            >
-              {coluna.titulo}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {itens.map((item) => (
-          <tr
-            key={chave(item)}
-            className="bg-card max-md:mb-3 max-md:block max-md:rounded-lg max-md:border max-md:p-3 max-md:shadow-sm"
-          >
+    // Se os botões numa linha não couberem (perto de lg), a tabela rola aqui, não a página.
+    <div className="md:overflow-x-auto">
+      <table className="w-full border-separate border-spacing-0 text-sm">
+        <caption className="sr-only">{legenda}</caption>
+        <thead className="max-md:sr-only">
+          <tr>
             {colunas.map((coluna) => (
-              <td
+              <th
                 key={coluna.titulo}
-                data-label={coluna.titulo}
-                className={cn(
-                  "border-b border-border px-3 py-2 align-middle",
-                  "max-md:flex max-md:gap-3 max-md:border-0 max-md:px-0 max-md:py-1",
-                  "max-md:before:w-28 max-md:before:shrink-0 max-md:before:font-bold max-md:before:content-[attr(data-label)]",
-                  coluna.acoes && "md:w-px",
-                  coluna.className,
-                )}
+                scope="col"
+                className="bg-primary px-3 py-2 text-left font-bold text-primary-foreground first:rounded-tl-lg last:rounded-tr-lg"
               >
-                <div
-                  className={cn(
-                    "min-w-0 flex-1 break-words",
-                    coluna.acoes && "flex flex-wrap gap-2 lg:flex-nowrap",
-                  )}
-                >
-                  {coluna.celula(item)}
-                </div>
-              </td>
+                {coluna.titulo}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {itens.map((item) => (
+            <tr
+              key={chave(item)}
+              className="bg-card max-md:mb-3 max-md:block max-md:rounded-lg max-md:border max-md:p-3 max-md:shadow-sm"
+            >
+              {colunas.map((coluna) => (
+                <td
+                  key={coluna.titulo}
+                  data-label={coluna.titulo}
+                  className={cn(
+                    "border-b border-border px-3 py-2 align-middle",
+                    "max-md:flex max-md:gap-3 max-md:border-0 max-md:px-0 max-md:py-1",
+                    "max-md:before:w-28 max-md:before:shrink-0 max-md:before:font-bold max-md:before:content-[attr(data-label)]",
+                    coluna.acoes && "md:w-px",
+                    coluna.className,
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "min-w-0 flex-1 break-words",
+                      coluna.acoes && "flex flex-wrap gap-2 lg:flex-nowrap",
+                    )}
+                  >
+                    {coluna.celula(item)}
+                  </div>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

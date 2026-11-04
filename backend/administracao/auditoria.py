@@ -18,8 +18,6 @@ from anotacoes.models import Anotacao, Compensacao, Despacho, TipoPunicao
 from contas.models import Turma, Usuario
 from mappas.models import Mappa
 
-POR_PAGINA = settings.NINJA_PAGINATION_PER_PAGE
-
 ACOES = {"+": "criou", "~": "alterou", "-": "apagou"}
 
 
@@ -163,13 +161,14 @@ def _fluxo(tipo, registros):
 def linha_do_tempo(filtros) -> dict:
     tipos = [filtros.tipo] if filtros.tipo else list(FONTES)
     pagina = max(filtros.page, 1)
-    limite = pagina * POR_PAGINA
+    por_pagina = filtros.page_size or settings.NINJA_PAGINATION_PER_PAGE
+    limite = pagina * por_pagina
 
     consultas = {tipo: _consulta(FONTES[tipo], filtros) for tipo in tipos}
     total = sum(qs.count() for qs in consultas.values())
     fluxos = [_fluxo(tipo, qs[:limite]) for tipo, qs in consultas.items()]
     intercalados = heapq.merge(*fluxos, key=lambda item: (item[0], item[1]), reverse=True)
-    recorte = list(intercalados)[(pagina - 1) * POR_PAGINA : limite]
+    recorte = list(intercalados)[(pagina - 1) * por_pagina : limite]
 
     nomes = Nomes()
     return {

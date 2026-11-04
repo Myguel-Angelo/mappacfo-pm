@@ -155,7 +155,7 @@ export function Layout() {
             className={cn(
               "absolute inset-x-0 top-14 border-b border-border bg-superficie shadow-md",
               "lg:static lg:block lg:border-0 lg:shadow-none",
-              aberto ? "block" : "hidden",
+              aberto && itens.length > 0 ? "block" : "hidden",
             )}
           >
             <ul className="flex flex-col px-2 py-2 lg:flex-row lg:items-center lg:gap-1 lg:p-0">

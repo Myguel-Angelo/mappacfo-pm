@@ -1,7 +1,7 @@
 import { act, render, renderHook, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
 import { Paginacao } from "@/components/paginacao";
 import { usePaginaLocal } from "@/lib/paginacao";
@@ -30,6 +30,18 @@ test("mostra o intervalo, pula paginas com reticencias e navega", async () => {
   expect(screen.getByRole("button", { name: "Próxima página" })).toBeDisabled();
 });
 
+test("salto de uma pagina so mostra o numero, nao reticencias", () => {
+  render(<Controlada total={200} inicial={4} />);
+  const numeros = screen.getAllByRole("button", { name: /^Página \d+$/ }).map((b) => b.textContent);
+  expect(numeros).toEqual(["1", "2", "3", "4", "5", "10"]);
+});
+
+test("se a ultima pagina esvaziou, vai para a que existe", () => {
+  const onChange = vi.fn();
+  render(<Paginacao pagina={3} total={40} onChange={onChange} />);
+  expect(onChange).toHaveBeenCalledWith(2);
+});
+
 test("pagina local volta para a primeira quando o filtro muda", () => {
   const itens = Array.from({ length: 45 }, (_, i) => i);
   const { result, rerender } = renderHook(({ lista, filtro }) => usePaginaLocal(lista, filtro), {
@@ -46,4 +58,10 @@ test("pagina local volta para a primeira quando o filtro muda", () => {
   rerender({ lista: itens, filtro: "joao" });
   expect(result.current.pagina).toBe(1);
   expect(result.current.itens).toHaveLength(20);
+
+  // Voltar ao filtro anterior não traz a página antiga de volta.
+  act(() => result.current.irPara(2));
+  rerender({ lista: itens, filtro: "" });
+  rerender({ lista: itens, filtro: "joao" });
+  expect(result.current.pagina).toBe(1);
 });

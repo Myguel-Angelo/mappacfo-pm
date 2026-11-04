@@ -220,6 +220,7 @@ class AdminAuditoriaFiltros(Schema):
         | None
     ) = None
     page: int = Field(default=1, ge=1)
+    page_size: int | None = Field(default=None, ge=1, le=100)
 
 
 class AdminAcessoOut(Schema):

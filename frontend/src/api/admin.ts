@@ -11,6 +11,7 @@ import type {
   AdminUsuario,
 } from "@/api/tipos";
 import type { components } from "@/api/schema";
+import { POR_PAGINA } from "@/lib/paginacao";
 
 type S = components["schemas"];
 
@@ -60,7 +61,10 @@ export function useAdminUsuarios(filtros: FiltrosUsuarios) {
   return useQuery({
     queryKey: [...chaves.usuarios, filtros],
     queryFn: ({ signal }) =>
-      api<S["PagedAdminUsuarioOut"]>(`/admin/usuarios${querystring(filtros)}`, { signal }),
+      api<S["PagedAdminUsuarioOut"]>(
+        `/admin/usuarios${querystring({ ...filtros, page_size: POR_PAGINA })}`,
+        { signal },
+      ),
     placeholderData: keepPreviousData,
   });
 }
@@ -213,7 +217,10 @@ export function useAuditoria(filtros: FiltrosAuditoria) {
   return useQuery({
     queryKey: [...chaves.auditoria, filtros],
     queryFn: ({ signal }) =>
-      api<AdminAuditoriaPagina>(`/admin/auditoria${querystring(filtros)}`, { signal }),
+      api<AdminAuditoriaPagina>(
+        `/admin/auditoria${querystring({ ...filtros, page_size: POR_PAGINA })}`,
+        { signal },
+      ),
     placeholderData: keepPreviousData,
   });
 }
@@ -222,7 +229,10 @@ export function useAcessos(filtros: { numerica?: string; page?: number }) {
   return useQuery({
     queryKey: [...chaves.acessos, filtros],
     queryFn: ({ signal }) =>
-      api<S["PagedAdminAcessoOut"]>(`/admin/acessos${querystring(filtros)}`, { signal }),
+      api<S["PagedAdminAcessoOut"]>(
+        `/admin/acessos${querystring({ ...filtros, page_size: POR_PAGINA })}`,
+        { signal },
+      ),
     placeholderData: keepPreviousData,
   });
 }
