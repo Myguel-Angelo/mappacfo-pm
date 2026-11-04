@@ -49,7 +49,7 @@ function DialogDaAnotacao({
   if (anotacao && anotacao !== ultima) setUltima(anotacao);
   return (
     <Dialog open={anotacao !== null} onOpenChange={(aberto) => !aberto && onClose()}>
-      <DialogContent className="max-h-[90svh] overflow-y-auto">
+      <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
         {ultima && children(ultima)}
       </DialogContent>
     </Dialog>
@@ -268,30 +268,33 @@ function FormularioPositiva({ positiva, onClose }: { positiva: Anotacao; onClose
             O cadete não tem negativa aguardando despacho. A positiva pode ser arquivada.
           </p>
         ) : (
-          lista.map((negativa) => (
-            <label
-              key={negativa.id}
-              className={cn(
-                "flex cursor-pointer gap-3 rounded-lg border-2 bg-card p-3 text-sm has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
-                negativaId === negativa.id ? "border-primary" : "border-border",
-              )}
-            >
-              <input
-                type="radio"
-                name="negativa"
-                value={negativa.id}
-                checked={negativaId === negativa.id}
-                onChange={() => setNegativaId(negativa.id)}
-                className="mt-1 accent-primary"
-              />
-              <span className="flex flex-col gap-1">
-                <span className="text-muted-foreground">
-                  Negativa de {formatarDataHora(negativa.criada_em)}
+          // A lista rola sozinha: o resumo e os botões continuam à vista.
+          <div className="-m-1 flex max-h-[40svh] flex-col gap-2 overflow-y-auto p-1">
+            {lista.map((negativa) => (
+              <label
+                key={negativa.id}
+                className={cn(
+                  "flex cursor-pointer gap-3 rounded-lg border-2 bg-card p-3 text-sm has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
+                  negativaId === negativa.id ? "border-primary" : "border-border",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="negativa"
+                  value={negativa.id}
+                  checked={negativaId === negativa.id}
+                  onChange={() => setNegativaId(negativa.id)}
+                  className="mt-1 accent-primary"
+                />
+                <span className="flex flex-col gap-1">
+                  <span className="text-muted-foreground">
+                    Negativa de {formatarDataHora(negativa.criada_em)}
+                  </span>
+                  <span className="whitespace-pre-line">{negativa.motivo}</span>
                 </span>
-                <span className="whitespace-pre-line">{negativa.motivo}</span>
-              </span>
-            </label>
-          ))
+              </label>
+            ))}
+          </div>
         )}
       </fieldset>
 

@@ -370,7 +370,7 @@ function FormularioMover({
       ) : cadetes.isError ? (
         <ErroCarregar erro={cadetes.error} tentarDeNovo={() => void cadetes.refetch()} />
       ) : (
-        <fieldset className="flex flex-col gap-2 rounded-lg bg-card p-3">
+        <fieldset className="flex max-h-[40svh] flex-col gap-2 overflow-y-auto rounded-lg bg-card p-3">
           <legend className="sr-only">Cadetes</legend>
           <Caixa
             rotulo={`Todos (${lista.length})`}
