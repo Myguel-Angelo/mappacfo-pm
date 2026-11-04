@@ -55,9 +55,9 @@ export function Mappas() {
       : []),
     {
       titulo: "Ações",
-      className: gerencia ? "md:w-56" : "md:w-32",
+      acoes: true,
       celula: (m) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button asChild size="sm">
             <a href={urlDownload(m)} download aria-label={`Baixar ${m.titulo}`}>
               <Download aria-hidden /> Baixar
@@ -74,7 +74,7 @@ export function Mappas() {
               {m.publicado ? "Despublicar" : "Publicar"}
             </Button>
           )}
-        </div>
+        </>
       ),
     },
   ];

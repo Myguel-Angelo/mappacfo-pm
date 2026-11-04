@@ -68,9 +68,9 @@ export function Despachadas() {
     },
     {
       titulo: "Ações",
-      className: "md:w-40",
+      acoes: true,
       celula: (a) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button
             size="sm"
             variant="outline"
@@ -92,7 +92,7 @@ export function Despachadas() {
           >
             <Ban aria-hidden /> Anular
           </Button>
-        </div>
+        </>
       ),
     },
   ];

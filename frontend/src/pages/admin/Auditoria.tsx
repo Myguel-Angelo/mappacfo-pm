@@ -228,7 +228,7 @@ function Bloqueios() {
     },
     {
       titulo: "Ação",
-      className: "md:w-32",
+      acoes: true,
       celula: (t) => (
         <Button
           size="sm"

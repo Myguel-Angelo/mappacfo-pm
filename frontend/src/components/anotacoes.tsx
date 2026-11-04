@@ -1,3 +1,5 @@
+import { ChevronDown } from "lucide-react";
+
 import type { StatusAnotacao, TipoAnotacao, Turma } from "@/api/tipos";
 import { Badge } from "@/components/ui/badge";
 import { ROTULO_STATUS, ROTULO_TIPO } from "@/lib/formato";
@@ -31,16 +33,25 @@ export function SeloStatus({ status }: { status: StatusAnotacao }) {
   return <Badge className={COR_STATUS[status]}>{ROTULO_STATUS[status]}</Badge>;
 }
 
-/** <select> nativo com o visual do Input: no celular abre o seletor do sistema. */
+/**
+ * <select> nativo com o visual do Input: no celular abre o seletor do sistema. A seta é
+ * nossa (appearance-none): a do navegador fica colada na borda e muda de um para outro.
+ */
 export function SelectNativo({ className, ...props }: React.ComponentProps<"select">) {
   return (
-    <select
-      className={cn(
-        "h-10 w-full rounded-lg border border-input bg-card px-2.5 text-base font-normal outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive md:text-sm",
-        className,
-      )}
-      {...props}
-    />
+    <span className="relative block w-full">
+      <select
+        className={cn(
+          "h-10 w-full appearance-none rounded-lg border border-input bg-card pr-9 pl-2.5 text-base font-normal outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive md:text-sm",
+          className,
+        )}
+        {...props}
+      />
+      <ChevronDown
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+    </span>
   );
 }
 
@@ -75,6 +86,8 @@ export type Coluna<T> = {
   titulo: string;
   celula: (item: T) => React.ReactNode;
   className?: string;
+  /** Coluna de botões: só a largura deles, numa linha a partir de lg (abaixo, quebram). */
+  acoes?: boolean;
 };
 
 /**
@@ -119,13 +132,21 @@ export function TabelaResponsiva<T>({
                 key={coluna.titulo}
                 data-label={coluna.titulo}
                 className={cn(
-                  "border-b border-border px-3 py-2 align-top",
+                  "border-b border-border px-3 py-2 align-middle",
                   "max-md:flex max-md:gap-3 max-md:border-0 max-md:px-0 max-md:py-1",
                   "max-md:before:w-28 max-md:before:shrink-0 max-md:before:font-bold max-md:before:content-[attr(data-label)]",
+                  coluna.acoes && "md:w-px",
                   coluna.className,
                 )}
               >
-                <div className="min-w-0 flex-1 break-words">{coluna.celula(item)}</div>
+                <div
+                  className={cn(
+                    "min-w-0 flex-1 break-words",
+                    coluna.acoes && "flex flex-wrap gap-2 lg:flex-nowrap",
+                  )}
+                >
+                  {coluna.celula(item)}
+                </div>
               </td>
             ))}
           </tr>

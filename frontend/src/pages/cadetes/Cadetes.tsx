@@ -39,7 +39,7 @@ export function Cadetes() {
     { titulo: "Turma", celula: (c) => c.turma?.nome ?? "—", className: "md:w-32" },
     {
       titulo: "Ação",
-      className: "md:w-32",
+      acoes: true,
       celula: (c) => (
         <Button size="sm" onClick={() => setAnotando(c)} aria-label={`Anotar ${c.nome}`}>
           <PencilLine aria-hidden /> Anotar

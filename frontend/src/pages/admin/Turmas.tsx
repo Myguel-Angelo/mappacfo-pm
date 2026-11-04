@@ -58,9 +58,9 @@ export function Turmas() {
     },
     {
       titulo: "Ações",
-      className: "md:w-72",
+      acoes: true,
       celula: (t) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button size="sm" variant="outline" onClick={() => setAcao({ tipo: "editar", turma: t })}>
             <Pencil aria-hidden /> Editar
           </Button>
@@ -99,7 +99,7 @@ export function Turmas() {
               {t.ativa ? "Arquivar" : "Reativar"}
             </Button>
           )}
-        </div>
+        </>
       ),
     },
   ];

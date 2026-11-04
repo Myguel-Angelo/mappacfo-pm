@@ -43,9 +43,9 @@ export function Punicoes() {
     },
     {
       titulo: "Ações",
-      className: "md:w-56",
+      acoes: true,
       celula: (p) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button size="sm" variant="outline" onClick={() => setEditando(p)}>
             <Pencil aria-hidden /> Renomear
           </Button>
@@ -69,7 +69,7 @@ export function Punicoes() {
             {p.ativo ? <PowerOff aria-hidden /> : <Power aria-hidden />}
             {p.ativo ? "Desativar" : "Ativar"}
           </Button>
-        </div>
+        </>
       ),
     },
   ];

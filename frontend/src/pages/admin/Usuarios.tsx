@@ -114,9 +114,9 @@ export function Usuarios() {
     },
     {
       titulo: "Ações",
-      className: "md:w-44",
+      acoes: true,
       celula: (u) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button
             size="sm"
             variant="outline"
@@ -153,7 +153,7 @@ export function Usuarios() {
                 <UserCheck aria-hidden /> Reativar
               </Button>
             ))}
-        </div>
+        </>
       ),
     },
   ];
@@ -192,8 +192,8 @@ export function Usuarios() {
         Usuários
       </Titulo>
 
-      <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="flex flex-col gap-1 sm:col-span-2 lg:col-span-1">
+      <div className="mb-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="flex flex-col gap-1 sm:col-span-3 lg:col-span-1">
           <label htmlFor="busca-usuario" className="text-sm font-bold">
             Buscar
           </label>

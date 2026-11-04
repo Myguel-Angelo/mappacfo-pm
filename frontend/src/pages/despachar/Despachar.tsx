@@ -54,9 +54,9 @@ export function Despachar() {
     { titulo: "Data", className: "md:w-36", celula: (a) => formatarDataHora(a.criada_em) },
     {
       titulo: "Ações",
-      className: "md:w-40",
+      acoes: true,
       celula: (a) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           {a.tipo === "negativa" ? (
             <Button
               size="sm"
@@ -81,7 +81,7 @@ export function Despachar() {
           >
             <Ban aria-hidden /> Anular
           </Button>
-        </div>
+        </>
       ),
     },
   ];
