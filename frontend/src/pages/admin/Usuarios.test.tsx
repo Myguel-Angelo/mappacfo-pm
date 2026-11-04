@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { Route } from "react-router";
@@ -107,4 +107,68 @@ test("cria e mostra a senha temporaria uma unica vez", async () => {
   ]);
   await userEvent.click(screen.getByRole("button", { name: "Já anotei" }));
   expect(screen.queryByText("abcd-efgh-jkmn")).not.toBeInTheDocument();
+});
+
+test("marca varios e desativa em lote; a selecao some depois", async () => {
+  const outro: AdminUsuario = { ...novo, id: 10, numerica: "4002", nome: "Outro Cadete" };
+  const oficial: AdminUsuario = {
+    ...novo,
+    id: 11,
+    numerica: "of1",
+    nome: "Ten Oficial",
+    grupos: ["Oficial"],
+    turma: null,
+  };
+  servidor.use(
+    http.get("/api/admin/usuarios", () =>
+      HttpResponse.json({ items: [novo, outro, oficial], count: 3 }),
+    ),
+    http.post("/api/admin/usuarios/lote", async ({ request }) => {
+      corpos.push(await request.json());
+      return HttpResponse.json({ quantidade: 2 });
+    }),
+  );
+  abrir();
+
+  await userEvent.click(await screen.findByRole("checkbox", { name: "Selecionar Novo Cadete" }));
+  await userEvent.click(screen.getByRole("checkbox", { name: "Selecionar Outro Cadete" }));
+  const barra = screen.getByRole("region", { name: "Ações nos selecionados" });
+  expect(barra).toHaveTextContent("2 selecionados");
+  expect(within(barra).getByRole("button", { name: /Mudar turma/ })).toBeEnabled();
+
+  // Com um oficial no meio, mudar de turma não vale para todos.
+  await userEvent.click(screen.getByRole("checkbox", { name: "Selecionar Ten Oficial" }));
+  expect(within(barra).getByRole("button", { name: /Mudar turma/ })).toBeDisabled();
+  await userEvent.click(screen.getByRole("checkbox", { name: "Selecionar Ten Oficial" }));
+
+  await userEvent.click(within(barra).getByRole("button", { name: /Desativar/ }));
+  const dialogo = screen.getByRole("dialog");
+  expect(dialogo).toHaveTextContent("4002 — Outro Cadete");
+  await userEvent.click(within(dialogo).getByRole("button", { name: "Desativar (2)" }));
+
+  // hidden: com o diálogo aberto o Radix esconde o resto da página dos leitores de tela.
+  await waitFor(() =>
+    expect(
+      screen.queryByRole("region", { name: "Ações nos selecionados", hidden: true }),
+    ).not.toBeInTheDocument(),
+  );
+  expect(corpos).toEqual([{ usuario_ids: [9, 10], acao: "desativar" }]);
+});
+
+test("marcar o cabecalho seleciona a pagina inteira", async () => {
+  const outro: AdminUsuario = { ...novo, id: 10, numerica: "4002", nome: "Outro Cadete" };
+  servidor.use(
+    http.get("/api/admin/usuarios", () => HttpResponse.json({ items: [novo, outro], count: 2 })),
+  );
+  abrir();
+
+  const todos = await screen.findByRole("checkbox", { name: "Selecionar todos desta página" });
+  await userEvent.click(screen.getByRole("checkbox", { name: "Selecionar Novo Cadete" }));
+  expect(todos).toHaveProperty("indeterminate", true);
+
+  await userEvent.click(todos);
+  expect(screen.getByRole("region", { name: "Ações nos selecionados" })).toHaveTextContent(
+    "2 selecionados",
+  );
+  expect(todos).toBeChecked();
 });

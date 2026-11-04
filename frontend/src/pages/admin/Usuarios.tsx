@@ -5,12 +5,19 @@ import { toast } from "sonner";
 import { useAdminTurmas, useAdminUsuarios, useDefinirAtivo, useResetarSenha } from "@/api/admin";
 import type { AdminUsuario } from "@/api/tipos";
 import { useUsuario } from "@/auth/sessao";
-import { SelectNativo, TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
+import {
+  SelectNativo,
+  TabelaResponsiva,
+  Titulo,
+  type Coluna,
+  type Selecao,
+} from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
 import { Paginacao } from "@/components/paginacao";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatarDataHora } from "@/lib/formato";
+import { AcoesEmLote } from "@/pages/admin/AcoesEmLote";
 import {
   DialogConfirmar,
   DialogSenhaTemporaria,
@@ -32,6 +39,8 @@ export function Usuarios() {
   const [editando, setEditando] = useState<AdminUsuario | "novo" | null>(null);
   const [confirmando, setConfirmando] = useState<Confirmacao | null>(null);
   const [senha, setSenha] = useState<SenhaEntregue | null>(null);
+  // Marcados por id; valem entre páginas e filtros, até a ação ou "Limpar seleção".
+  const [marcados, setMarcados] = useState<Map<number, AdminUsuario>>(() => new Map());
 
   const termo = useDeferredValue(busca.trim());
   const turmas = useAdminTurmas();
@@ -72,6 +81,20 @@ export function Usuarios() {
       );
     }
   }
+
+  const selecao: Selecao<AdminUsuario> = {
+    marcados: new Set(marcados.keys()),
+    rotulo: (u) => `Selecionar ${u.nome}`,
+    onChange: (itens, marcado) =>
+      setMarcados((atual) => {
+        const novo = new Map(atual);
+        for (const u of itens) {
+          if (marcado) novo.set(u.id, u);
+          else novo.delete(u.id);
+        }
+        return novo;
+      }),
+  };
 
   const colunas: Coluna<AdminUsuario>[] = [
     { titulo: "Numérica", className: "md:w-28", celula: (u) => <strong>{u.numerica}</strong> },
@@ -264,10 +287,13 @@ export function Usuarios() {
             colunas={colunas}
             chave={(u) => u.id}
             legenda="Usuários"
+            selecao={selecao}
           />
           <Paginacao pagina={pagina} total={consulta.data.count} onChange={setPagina} />
         </div>
       )}
+
+      <AcoesEmLote usuarios={[...marcados.values()]} onConcluir={() => setMarcados(new Map())} />
 
       <DialogUsuario alvo={editando} onClose={() => setEditando(null)} onSenha={setSenha} />
       <DialogConfirmar

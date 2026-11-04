@@ -109,6 +109,17 @@ export function useDefinirAtivo() {
   );
 }
 
+export type AcaoEmLote = "desativar" | "reativar" | "permitir_anotar" | "retirar_anotar";
+
+/** Tudo ou nada; devolve quantos mudaram de fato. Mudar de turma é useMoverCadetes. */
+export function useUsuariosEmLote() {
+  return useEscritaAdmin(
+    (dados: { usuario_ids: number[]; acao: AcaoEmLote }) =>
+      api<{ quantidade: number }>("/admin/usuarios/lote", { method: "POST", body: dados }),
+    afetaUsuarios,
+  );
+}
+
 export function useResetarSenha() {
   return useEscritaAdmin(
     (id: number) =>
