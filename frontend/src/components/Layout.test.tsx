@@ -42,6 +42,25 @@ test("perfil mostra nome e iniciais; alterar senha e sair ficam no menu dele", a
   expect(screen.getByTestId("rota")).toHaveTextContent("/trocar-senha");
 });
 
+test("administracao fica no menu do perfil, so para quem tem a permissao", async () => {
+  abrirComo(usuario({ permissoes: ["contas.gerenciar_usuarios"] }));
+
+  const perfil = await screen.findByRole("button", { name: /^Menu de/ });
+  expect(screen.queryByRole("link", { name: "Administração" })).not.toBeInTheDocument();
+  await userEvent.click(perfil);
+  await userEvent.click(await screen.findByRole("menuitem", { name: "Administração" }));
+
+  expect(screen.getByTestId("rota")).toHaveTextContent("/admin");
+});
+
+test("sem a permissao, o menu do perfil nao mostra administracao", async () => {
+  abrirComo(usuario());
+
+  await userEvent.click(await screen.findByRole("button", { name: /^Menu de/ }));
+  expect(await screen.findByRole("menuitem", { name: "Sair" })).toBeInTheDocument();
+  expect(screen.queryByRole("menuitem", { name: "Administração" })).not.toBeInTheDocument();
+});
+
 test("na troca de senha obrigatoria nao ha menu principal, so o perfil", async () => {
   abrirComo(usuario({ deve_trocar_senha: true }), "/trocar-senha");
 

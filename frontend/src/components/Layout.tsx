@@ -61,12 +61,6 @@ const MENU: ItemMenu[] = [
     icone: FileCheck,
     permissao: "anotacoes.despachar",
   },
-  {
-    rota: "/admin",
-    rotulo: "Administração",
-    icone: Settings,
-    permissao: "contas.gerenciar_usuarios",
-  },
 ];
 
 function itemVisivel(item: ItemMenu, usuario: Me) {
@@ -88,6 +82,9 @@ function iniciais(nome: string) {
  */
 function MenuPerfil({ usuario, onAbrir }: { usuario: Me; onAbrir: () => void }) {
   const logout = useLogout();
+  // O painel é da conta de quem administra, não do dia a dia: fica no menu do perfil.
+  const administra =
+    !usuario.deve_trocar_senha && temPermissao(usuario, "contas.gerenciar_usuarios");
 
   return (
     <DropdownMenu onOpenChange={(aberto) => aberto && onAbrir()}>
@@ -114,6 +111,13 @@ function MenuPerfil({ usuario, onAbrir }: { usuario: Me; onAbrir: () => void }) 
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {administra && (
+          <DropdownMenuItem asChild className="px-2 py-2">
+            <Link to="/admin">
+              <Settings aria-hidden /> Administração
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild className="px-2 py-2">
           <Link to="/trocar-senha">
             <KeyRound aria-hidden /> Alterar senha
