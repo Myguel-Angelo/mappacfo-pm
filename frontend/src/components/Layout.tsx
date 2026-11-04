@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  ChevronDown,
   FolderOpen,
   FileCheck,
   FileText,
@@ -16,6 +17,15 @@ import { Link, NavLink, Outlet } from "react-router";
 
 import type { Me, Permissao } from "@/api/tipos";
 import { temPermissao, useLogout, useUsuario } from "@/auth/sessao";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 type ItemMenu = {
@@ -57,7 +67,6 @@ const MENU: ItemMenu[] = [
     icone: Settings,
     permissao: "contas.gerenciar_usuarios",
   },
-  { rota: "/trocar-senha", rotulo: "Alterar senha", icone: KeyRound },
 ];
 
 function itemVisivel(item: ItemMenu, usuario: Me) {
@@ -65,9 +74,66 @@ function itemVisivel(item: ItemMenu, usuario: Me) {
   return item.visivel?.(usuario) ?? true;
 }
 
+/** "Cap João da Silva" vira "CS": primeira e última palavra. */
+function iniciais(nome: string) {
+  const partes = nome.trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "?";
+  const ultima = partes.length > 1 ? partes[partes.length - 1][0] : "";
+  return (partes[0][0] + ultima).toUpperCase();
+}
+
+/**
+ * Círculo de perfil com o nome sempre à vista; o menu dele guarda o que é da conta.
+ * A foto entra depois (AvatarImage); até lá, as iniciais.
+ */
+function MenuPerfil({ usuario, onAbrir }: { usuario: Me; onAbrir: () => void }) {
+  const logout = useLogout();
+
+  return (
+    <DropdownMenu onOpenChange={(aberto) => aberto && onAbrir()}>
+      <DropdownMenuTrigger
+        className="flex min-w-0 items-center gap-2 rounded-full py-1 pr-2 pl-1 text-primary outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:bg-accent"
+        aria-label={`Menu de ${usuario.nome}`}
+      >
+        <Avatar className="size-8 after:border-0">
+          <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
+            {iniciais(usuario.nome)}
+          </AvatarFallback>
+        </Avatar>
+        <span className="max-w-28 truncate text-sm font-bold sm:max-w-40 lg:max-w-28 xl:max-w-40">
+          {usuario.nome}
+        </span>
+        <ChevronDown className="size-4 shrink-0" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-60">
+        <DropdownMenuLabel className="flex flex-col gap-0.5 px-2 py-1.5">
+          <span className="truncate text-sm font-bold text-foreground">{usuario.nome}</span>
+          <span className="truncate text-xs font-normal">
+            {usuario.numerica}
+            {usuario.perfil && ` · ${usuario.perfil}`}
+          </span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="px-2 py-2">
+          <Link to="/trocar-senha">
+            <KeyRound aria-hidden /> Alterar senha
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          variant="destructive"
+          className="px-2 py-2"
+          disabled={logout.isPending}
+          onSelect={() => logout.mutate()}
+        >
+          <LogOut aria-hidden /> Sair
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function Layout() {
   const usuario = useUsuario();
-  const logout = useLogout();
   const [aberto, setAberto] = useState(false);
 
   const itens = usuario.deve_trocar_senha ? [] : MENU.filter((item) => itemVisivel(item, usuario));
@@ -75,34 +141,24 @@ export function Layout() {
   return (
     <div className="flex min-h-svh flex-col">
       <header className="fixed inset-x-0 top-0 z-40 border-b border-border bg-superficie shadow-sm">
-        <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-4">
+        <div className="mx-auto flex h-14 max-w-[1200px] items-center gap-2 px-4">
           <Link
             to="/"
-            className="font-marca text-2xl font-black tracking-wide text-primary"
+            className="mr-auto font-marca text-2xl font-black tracking-wide text-primary"
             aria-label="MAPPA, início"
           >
             MAPPA
           </Link>
-          <button
-            type="button"
-            className="inline-flex size-10 items-center justify-center rounded-md text-primary min-[950px]:hidden"
-            aria-expanded={aberto}
-            aria-controls="menu-principal"
-            aria-label={aberto ? "Fechar menu" : "Abrir menu"}
-            onClick={() => setAberto((v) => !v)}
-          >
-            {aberto ? <X aria-hidden /> : <Menu aria-hidden />}
-          </button>
           <nav
             id="menu-principal"
             aria-label="Menu principal"
             className={cn(
               "absolute inset-x-0 top-14 border-b border-border bg-superficie shadow-md",
-              "min-[950px]:static min-[950px]:block min-[950px]:border-0 min-[950px]:shadow-none",
+              "lg:static lg:block lg:border-0 lg:shadow-none",
               aberto ? "block" : "hidden",
             )}
           >
-            <ul className="flex flex-col px-2 py-2 min-[950px]:flex-row min-[950px]:items-center min-[950px]:gap-1 min-[950px]:p-0">
+            <ul className="flex flex-col px-2 py-2 lg:flex-row lg:items-center lg:gap-1 lg:p-0">
               {itens.map((item) => (
                 <li key={item.rota}>
                   <NavLink
@@ -110,7 +166,7 @@ export function Layout() {
                     onClick={() => setAberto(false)}
                     className={({ isActive }) =>
                       cn(
-                        "group relative flex items-center gap-2 rounded-md px-3 py-3 font-bold text-primary min-[950px]:py-2",
+                        "group relative flex items-center gap-2 rounded-md px-3 py-3 font-bold text-primary lg:px-2.5 lg:py-2",
                         isActive && "bg-accent",
                       )
                     }
@@ -120,24 +176,27 @@ export function Layout() {
                     {/* Sublinhado animado do sistema antigo */}
                     <span
                       aria-hidden
-                      className="absolute inset-x-3 bottom-1 hidden h-0.5 origin-left scale-x-0 bg-destaque-menu transition-transform group-hover:scale-x-100 min-[950px]:block"
+                      className="absolute inset-x-3 bottom-1 hidden h-0.5 origin-left scale-x-0 bg-destaque-menu transition-transform group-hover:scale-x-100 lg:block"
                     />
                   </NavLink>
                 </li>
               ))}
-              <li>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-3 font-bold text-sair hover:bg-black/5 min-[950px]:py-2"
-                  onClick={() => logout.mutate()}
-                  disabled={logout.isPending}
-                >
-                  <LogOut className="size-4" aria-hidden />
-                  Sair
-                </button>
-              </li>
             </ul>
           </nav>
+          <MenuPerfil usuario={usuario} onAbrir={() => setAberto(false)} />
+          {/* Na troca de senha obrigatória não há itens: o menu do perfil basta. */}
+          {itens.length > 0 && (
+            <button
+              type="button"
+              className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-primary lg:hidden"
+              aria-expanded={aberto}
+              aria-controls="menu-principal"
+              aria-label={aberto ? "Fechar menu" : "Abrir menu"}
+              onClick={() => setAberto((v) => !v)}
+            >
+              {aberto ? <X aria-hidden /> : <Menu aria-hidden />}
+            </button>
+          )}
         </div>
       </header>
 
