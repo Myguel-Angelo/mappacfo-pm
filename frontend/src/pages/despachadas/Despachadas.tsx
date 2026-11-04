@@ -3,14 +3,9 @@ import { useState } from "react";
 
 import { useAnotacoes, useTurmas } from "@/api/anotacoes";
 import type { Anotacao } from "@/api/tipos";
-import {
-  FiltroTurma,
-  Paginacao,
-  TabelaResponsiva,
-  Titulo,
-  type Coluna,
-} from "@/components/anotacoes";
+import { FiltroTurma, TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Button } from "@/components/ui/button";
 import { temPermissao, useUsuario } from "@/auth/sessao";
 import { formatarData, formatarDataHora, pessoaComPerfil } from "@/lib/formato";

@@ -12,6 +12,7 @@ import type { components } from "@/api/schema";
 import type { AdminTurma, AdminUsuario } from "@/api/tipos";
 import { SelectNativo, TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Campo, ErroFormulario } from "@/components/formulario";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { hojeIso } from "@/lib/formato";
 import { aplicarErrosNosCampos } from "@/lib/formulario";
+import { usePaginaLocal } from "@/lib/paginacao";
 import { Caixa, DialogConfirmar, SeloAtivo } from "@/pages/admin/comum";
 
 type Acao =
@@ -37,6 +39,7 @@ export function Turmas() {
   const salvar = useSalvarTurma();
   const formar = useFormarTurma();
   const [acao, setAcao] = useState<Acao | null>(null);
+  const pagina = usePaginaLocal(consulta.data ?? []);
 
   function fechar() {
     setAcao(null);
@@ -120,12 +123,15 @@ export function Turmas() {
       ) : consulta.data.length === 0 ? (
         <Vazio>Nenhuma turma cadastrada.</Vazio>
       ) : (
-        <TabelaResponsiva
-          itens={consulta.data}
-          colunas={colunas}
-          chave={(t) => t.id}
-          legenda="Turmas"
-        />
+        <div className="flex flex-col gap-4">
+          <TabelaResponsiva
+            itens={pagina.itens}
+            colunas={colunas}
+            chave={(t) => t.id}
+            legenda="Turmas"
+          />
+          <Paginacao pagina={pagina.pagina} total={pagina.total} onChange={pagina.irPara} />
+        </div>
       )}
 
       <DialogTurma
@@ -278,7 +284,7 @@ function FormularioTurma({ turma, onClose }: { turma: AdminTurma | null; onClose
 
 type PaginaUsuarios = components["schemas"]["PagedAdminUsuarioOut"];
 
-/** Todos os cadetes ativos da turma (a listagem do painel é paginada de 50 em 50). */
+/** Todos os cadetes ativos da turma (a listagem do painel é paginada; pede o máximo, 100). */
 function useCadetesDaTurma(turmaId: number | undefined) {
   return useQuery({
     queryKey: ["admin", "usuarios", "turma", turmaId],
@@ -287,7 +293,7 @@ function useCadetesDaTurma(turmaId: number | undefined) {
       const todos: AdminUsuario[] = [];
       for (let pagina = 1; ; pagina += 1) {
         const resposta = await api<PaginaUsuarios>(
-          `/admin/usuarios?turma_id=${turmaId}&grupo=Cadete&ativo=true&page=${pagina}`,
+          `/admin/usuarios?turma_id=${turmaId}&grupo=Cadete&ativo=true&page=${pagina}&page_size=100`,
           { signal },
         );
         todos.push(...resposta.items);

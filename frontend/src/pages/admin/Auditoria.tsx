@@ -5,19 +5,15 @@ import { toast } from "sonner";
 import { mensagemDeErro } from "@/api/erros";
 import { useAcessos, useAuditoria, useBloqueios, useLiberarBloqueio } from "@/api/admin";
 import type { AdminAcesso, AdminAuditoriaItem, AdminTentativa } from "@/api/tipos";
-import {
-  Paginacao,
-  SelectNativo,
-  TabelaResponsiva,
-  Titulo,
-  type Coluna,
-} from "@/components/anotacoes";
+import { SelectNativo, TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatarDataHora } from "@/lib/formato";
+import { usePaginaLocal } from "@/lib/paginacao";
 
 const TIPOS = [
   ["anotacao", "Anotações"],
@@ -213,6 +209,7 @@ function Acessos() {
 function Bloqueios() {
   const consulta = useBloqueios();
   const liberar = useLiberarBloqueio();
+  const pagina = usePaginaLocal(consulta.data ?? []);
 
   const colunas: Coluna<AdminTentativa>[] = [
     { titulo: "Numérica", className: "md:w-32", celula: (t) => <strong>{t.numerica}</strong> },
@@ -263,12 +260,15 @@ function Bloqueios() {
       ) : consulta.data.length === 0 ? (
         <Vazio>Nenhuma tentativa de login com erro.</Vazio>
       ) : (
-        <TabelaResponsiva
-          itens={consulta.data}
-          colunas={colunas}
-          chave={(t) => `${t.numerica}-${t.ip}`}
-          legenda="Tentativas de login com erro"
-        />
+        <div className="flex flex-col gap-4">
+          <TabelaResponsiva
+            itens={pagina.itens}
+            colunas={colunas}
+            chave={(t) => `${t.numerica}-${t.ip}`}
+            legenda="Tentativas de login com erro"
+          />
+          <Paginacao pagina={pagina.pagina} total={pagina.total} onChange={pagina.irPara} />
+        </div>
       )}
     </>
   );

@@ -85,15 +85,15 @@ def test_filtros_por_tipo_usuario_e_periodo(api_admin, admin, comandante):
 
 
 def test_paginacao_intercala_as_fontes_mais_recentes_primeiro(api_admin):
-    for _ in range(30):
+    for _ in range(15):
         AnotacaoFactory()
         TurmaFactory()
 
     primeira = api_admin.get("admin/auditoria").json()
     segunda = api_admin.get("admin/auditoria?page=2").json()
 
-    assert primeira["count"] == segunda["count"] >= 60
-    assert len(primeira["items"]) == 50
+    assert primeira["count"] == segunda["count"] >= 30
+    assert len(primeira["items"]) == 20
     datas = [i["quando"] for i in primeira["items"] + segunda["items"]]
     assert datas == sorted(datas, reverse=True)
     ids = [i["id"] for i in primeira["items"] + segunda["items"]]

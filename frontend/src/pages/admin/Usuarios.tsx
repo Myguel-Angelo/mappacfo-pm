@@ -5,14 +5,9 @@ import { toast } from "sonner";
 import { useAdminTurmas, useAdminUsuarios, useDefinirAtivo, useResetarSenha } from "@/api/admin";
 import type { AdminUsuario } from "@/api/tipos";
 import { useUsuario } from "@/auth/sessao";
-import {
-  Paginacao,
-  SelectNativo,
-  TabelaResponsiva,
-  Titulo,
-  type Coluna,
-} from "@/components/anotacoes";
+import { SelectNativo, TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatarDataHora } from "@/lib/formato";

@@ -120,6 +120,11 @@ AXES_LOCKOUT_CALLABLE = "contas.bloqueio.resposta_bloqueio"
 # Atrás do Caddy (fase 8) o IP real vem do X-Forwarded-For: definir AXES_IPWARE_PROXY_COUNT.
 
 
+# Listas paginadas da API (o frontend usa o mesmo tamanho em POR_PAGINA)
+
+NINJA_PAGINATION_PER_PAGE = 20
+
+
 # Internationalization
 
 LANGUAGE_CODE = "pt-br"

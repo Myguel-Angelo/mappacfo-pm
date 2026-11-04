@@ -6,10 +6,12 @@ import { useConfirmarImportacao, useCriarPrevia } from "@/api/admin";
 import type { AdminImportacao, AdminLinhaImportacao, AdminResultadoImportacao } from "@/api/tipos";
 import { SelectNativo, TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { ErroFormulario } from "@/components/formulario";
+import { Paginacao } from "@/components/paginacao";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatarDataHora } from "@/lib/formato";
+import { usePaginaLocal } from "@/lib/paginacao";
 import { cn } from "@/lib/utils";
 import { Caixa } from "@/pages/admin/comum";
 
@@ -47,6 +49,8 @@ export function Importar() {
   const [filtro, setFiltro] = useState("");
   const analisar = useCriarPrevia();
   const confirmar = useConfirmarImportacao();
+  const linhas = previa?.linhas.filter((l) => !filtro || l.acao === filtro) ?? [];
+  const pagina = usePaginaLocal(linhas, `${previa?.id}|${filtro}`);
 
   function recomecar() {
     setArquivo(null);
@@ -86,7 +90,6 @@ export function Importar() {
     );
   }
 
-  const linhas = previa?.linhas.filter((l) => !filtro || l.acao === filtro) ?? [];
   const colunas: Coluna<AdminLinhaImportacao>[] = [
     { titulo: "Linha", className: "md:w-16", celula: (l) => l.linha },
     { titulo: "Numérica", className: "md:w-28", celula: (l) => l.numerica || "—" },
@@ -210,11 +213,12 @@ export function Importar() {
           </label>
 
           <TabelaResponsiva
-            itens={linhas}
+            itens={pagina.itens}
             colunas={colunas}
             chave={(l) => l.linha}
             legenda="Prévia da importação"
           />
+          <Paginacao pagina={pagina.pagina} total={pagina.total} onChange={pagina.irPara} />
 
           <ErroFormulario erro={confirmar.error} />
 

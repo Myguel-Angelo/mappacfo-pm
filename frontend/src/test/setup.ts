@@ -5,6 +5,8 @@ import { afterAll, afterEach, beforeAll } from "vitest";
 import { servidor } from "@/test/servidor";
 
 beforeAll(() => {
+  // O jsdom não implementa rolagem; a paginação rola para o topo ao trocar de página.
+  window.scrollTo = () => {};
   servidor.listen({ onUnhandledFrame: "error" });
   // O cliente usa caminhos relativos (/api/...), como no navegador; no Node o fetch exige
   // URL absoluta. Resolve contra a origem do jsdom depois que o MSW instalou o dele.

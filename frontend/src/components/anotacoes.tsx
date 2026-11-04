@@ -1,12 +1,9 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
 import type { StatusAnotacao, TipoAnotacao, Turma } from "@/api/tipos";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ROTULO_STATUS, ROTULO_TIPO } from "@/lib/formato";
 import { cn } from "@/lib/utils";
 
-// Peças das telas de anotações: selos, select nativo, tabela que vira cartões e paginação.
+// Peças das telas de anotações: selos, select nativo e tabela que vira cartões.
 
 export function SeloTipo({ tipo }: { tipo: TipoAnotacao }) {
   return (
@@ -135,44 +132,6 @@ export function TabelaResponsiva<T>({
         ))}
       </tbody>
     </table>
-  );
-}
-
-export function Paginacao({
-  pagina,
-  total,
-  porPagina = 50,
-  onChange,
-}: {
-  pagina: number;
-  total: number;
-  porPagina?: number;
-  onChange: (pagina: number) => void;
-}) {
-  const paginas = Math.max(1, Math.ceil(total / porPagina));
-  if (paginas === 1) return null;
-  return (
-    <nav aria-label="Paginação" className="flex items-center justify-center gap-3">
-      <Button
-        variant="outline"
-        onClick={() => onChange(pagina - 1)}
-        disabled={pagina <= 1}
-        aria-label="Página anterior"
-      >
-        <ChevronLeft aria-hidden />
-      </Button>
-      <span className="text-sm">
-        Página {pagina} de {paginas}
-      </span>
-      <Button
-        variant="outline"
-        onClick={() => onChange(pagina + 1)}
-        disabled={pagina >= paginas}
-        aria-label="Próxima página"
-      >
-        <ChevronRight aria-hidden />
-      </Button>
-    </nav>
   );
 }
 

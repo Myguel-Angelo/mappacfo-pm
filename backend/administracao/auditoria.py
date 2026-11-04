@@ -10,6 +10,7 @@ import heapq
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.utils import timezone
 
@@ -17,7 +18,7 @@ from anotacoes.models import Anotacao, Compensacao, Despacho, TipoPunicao
 from contas.models import Turma, Usuario
 from mappas.models import Mappa
 
-POR_PAGINA = 50
+POR_PAGINA = settings.NINJA_PAGINATION_PER_PAGE
 
 ACOES = {"+": "criou", "~": "alterou", "-": "apagou"}
 

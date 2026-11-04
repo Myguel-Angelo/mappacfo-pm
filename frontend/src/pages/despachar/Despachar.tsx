@@ -5,13 +5,13 @@ import { useAnotacoes, useTurmas } from "@/api/anotacoes";
 import type { Anotacao } from "@/api/tipos";
 import {
   FiltroTurma,
-  Paginacao,
   SeloTipo,
   TabelaResponsiva,
   Titulo,
   type Coluna,
 } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Button } from "@/components/ui/button";
 import { formatarDataHora, pessoaComPerfil } from "@/lib/formato";
 import { DialogAnular, DialogDespacho, DialogPositiva } from "@/pages/despachar/dialogos";

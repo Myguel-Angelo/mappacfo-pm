@@ -97,7 +97,7 @@ def minhas_anotacoes(request):
 
 
 @router.get("/anotacoes", response={200: list[AnotacaoOut], 403: ErroOut})
-@paginate(PageNumberPagination, page_size=50)
+@paginate(PageNumberPagination)
 def listar_anotacoes(request, filtros: Query[AnotacaoFiltros]):
     exigir(request.user, "anotacoes.ver_anotacoes")
     qs = anotacoes_visiveis(request.user)

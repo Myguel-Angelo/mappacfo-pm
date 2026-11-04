@@ -75,7 +75,7 @@ def _usuario(usuario_id):
 
 
 @router.get("/usuarios", response={200: list[AdminUsuarioOut], 403: ErroOut})
-@paginate(PageNumberPagination, page_size=50)
+@paginate(PageNumberPagination)
 def listar_usuarios(request, filtros: Query[AdminUsuarioFiltros]):
     _admin(request)
     qs = _usuarios()
@@ -236,7 +236,7 @@ def listar_auditoria(request, filtros: Query[AdminAuditoriaFiltros]):
 
 
 @router.get("/acessos", response={200: list[AdminAcessoOut], 403: ErroOut})
-@paginate(PageNumberPagination, page_size=50)
+@paginate(PageNumberPagination)
 def listar_acessos(request, numerica: str | None = None):
     """Logins com sucesso (django-axes)."""
     _admin(request)
