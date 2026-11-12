@@ -5,8 +5,10 @@ import { useCadetes, useTurmas } from "@/api/anotacoes";
 import type { Cadete } from "@/api/tipos";
 import { FiltroTurma, TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { usePaginaLocal } from "@/lib/paginacao";
 import { DialogAnotar } from "@/pages/cadetes/DialogAnotar";
 
 /** Busca sem acento e sem caixa: "joao" acha "João". */
@@ -29,6 +31,7 @@ export function Cadetes() {
     cadetes.data?.filter(
       (c) => !termo || normalizar(c.nome).includes(termo) || c.numerica.includes(termo),
     ) ?? [];
+  const pagina = usePaginaLocal(filtrados, `${turmaId}|${termo}`);
 
   const colunas: Coluna<Cadete>[] = [
     { titulo: "Numérica", celula: (c) => c.numerica, className: "md:w-28" },
@@ -36,7 +39,7 @@ export function Cadetes() {
     { titulo: "Turma", celula: (c) => c.turma?.nome ?? "—", className: "md:w-32" },
     {
       titulo: "Ação",
-      className: "md:w-32",
+      acoes: true,
       celula: (c) => (
         <Button size="sm" onClick={() => setAnotando(c)} aria-label={`Anotar ${c.nome}`}>
           <PencilLine aria-hidden /> Anotar
@@ -81,12 +84,15 @@ export function Cadetes() {
           {termo ? "Nenhum cadete encontrado para a busca." : "Nenhum cadete nesta turma."}
         </Vazio>
       ) : (
-        <TabelaResponsiva
-          itens={filtrados}
-          colunas={colunas}
-          chave={(c) => c.id}
-          legenda="Cadetes"
-        />
+        <div className="flex flex-col gap-4">
+          <TabelaResponsiva
+            itens={pagina.itens}
+            colunas={colunas}
+            chave={(c) => c.id}
+            legenda="Cadetes"
+          />
+          <Paginacao pagina={pagina.pagina} total={pagina.total} onChange={pagina.irPara} />
+        </div>
       )}
 
       <DialogAnotar cadete={anotando} onClose={() => setAnotando(null)} />

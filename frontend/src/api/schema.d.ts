@@ -382,6 +382,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/usuarios/lote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Usuarios Em Lote
+         * @description Ações nos usuários marcados na lista. Mudar de turma em lote é /turmas/mover.
+         *     Vem antes de /usuarios/{usuario_id}: senão "lote" cai naquela rota.
+         */
+        post: operations["administracao_api_usuarios_em_lote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/usuarios/{usuario_id}": {
         parameters: {
             query?: never;
@@ -1007,6 +1028,21 @@ export interface components {
              */
             anotar: boolean;
         };
+        /** AdminQuantidadeOut */
+        AdminQuantidadeOut: {
+            /** Quantidade */
+            quantidade: number;
+        };
+        /** AdminLoteIn */
+        AdminLoteIn: {
+            /** Usuario Ids */
+            usuario_ids: number[];
+            /**
+             * Acao
+             * @enum {string}
+             */
+            acao: "desativar" | "reativar" | "permitir_anotar" | "retirar_anotar";
+        };
         /** AdminUsuarioEditarIn */
         AdminUsuarioEditarIn: {
             /** Nome */
@@ -1044,11 +1080,6 @@ export interface components {
             nome: string;
             /** Ano Ingresso */
             ano_ingresso: number;
-        };
-        /** AdminQuantidadeOut */
-        AdminQuantidadeOut: {
-            /** Quantidade */
-            quantidade: number;
         };
         /** AdminMoverIn */
         AdminMoverIn: {
@@ -1194,6 +1225,8 @@ export interface components {
              * @default 1
              */
             page: number;
+            /** Page Size */
+            page_size?: number | null;
         };
         /** AdminAuditoriaItemOut */
         AdminAuditoriaItemOut: {
@@ -2236,6 +2269,57 @@ export interface operations {
             };
         };
     };
+    administracao_api_usuarios_em_lote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminLoteIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminQuantidadeOut"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErroOut"];
+                };
+            };
+        };
+    };
     administracao_api_editar_usuario: {
         parameters: {
             query?: never;
@@ -2926,6 +3010,7 @@ export interface operations {
                 usuario_id?: number | null;
                 tipo?: ("anotacao" | "despacho" | "compensacao" | "mappa" | "usuario" | "turma" | "punicao") | null;
                 page?: number;
+                page_size?: number | null;
             };
             header?: never;
             path?: never;

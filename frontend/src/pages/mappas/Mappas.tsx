@@ -7,9 +7,11 @@ import type { Mappa } from "@/api/tipos";
 import { temPermissao, useUsuario } from "@/auth/sessao";
 import { TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatarDataHora } from "@/lib/formato";
+import { usePaginaLocal } from "@/lib/paginacao";
 
 export function Mappas() {
   const usuario = useUsuario();
@@ -17,6 +19,7 @@ export function Mappas() {
   const gerencia = temPermissao(usuario, "anotacoes.exportar");
   const consulta = useMappas();
   const publicar = usePublicarMappa();
+  const pagina = usePaginaLocal(consulta.data ?? []);
 
   function alternar(mappa: Mappa) {
     publicar.mutate(
@@ -52,9 +55,9 @@ export function Mappas() {
       : []),
     {
       titulo: "Ações",
-      className: gerencia ? "md:w-56" : "md:w-32",
+      acoes: true,
       celula: (m) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button asChild size="sm">
             <a href={urlDownload(m)} download aria-label={`Baixar ${m.titulo}`}>
               <Download aria-hidden /> Baixar
@@ -71,7 +74,7 @@ export function Mappas() {
               {m.publicado ? "Despublicar" : "Publicar"}
             </Button>
           )}
-        </div>
+        </>
       ),
     },
   ];
@@ -90,12 +93,15 @@ export function Mappas() {
             : "Nenhum mappa publicado."}
         </Vazio>
       ) : (
-        <TabelaResponsiva
-          itens={consulta.data}
-          colunas={colunas}
-          chave={(m) => m.id}
-          legenda="Mappas"
-        />
+        <div className="flex flex-col gap-4">
+          <TabelaResponsiva
+            itens={pagina.itens}
+            colunas={colunas}
+            chave={(m) => m.id}
+            legenda="Mappas"
+          />
+          <Paginacao pagina={pagina.pagina} total={pagina.total} onChange={pagina.irPara} />
+        </div>
       )}
     </>
   );

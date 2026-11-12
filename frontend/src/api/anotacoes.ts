@@ -17,6 +17,7 @@ import type {
   TipoAnotacao,
   Turma,
 } from "@/api/tipos";
+import { POR_PAGINA } from "@/lib/paginacao";
 
 // Chaves de cache: tudo que lista anotações começa com "anotacoes", para uma escrita
 // invalidar todas as listas de uma vez.
@@ -92,7 +93,10 @@ export function useMinhasAnotacoes() {
 export function useAnotacoes(filtros: FiltrosAnotacoes, habilitado = true) {
   return useQuery({
     queryKey: chaves.lista(filtros),
-    queryFn: ({ signal }) => api<PaginaAnotacoes>(`/anotacoes${querystring(filtros)}`, { signal }),
+    queryFn: ({ signal }) =>
+      api<PaginaAnotacoes>(`/anotacoes${querystring({ ...filtros, page_size: POR_PAGINA })}`, {
+        signal,
+      }),
     placeholderData: keepPreviousData,
     enabled: habilitado,
   });

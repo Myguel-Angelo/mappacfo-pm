@@ -63,6 +63,11 @@ class AdminUsuarioEditarIn(Schema):
     anotar: bool | None = None
 
 
+class AdminLoteIn(Schema):
+    usuario_ids: list[int] = Field(min_length=1, max_length=500)
+    acao: Literal["desativar", "reativar", "permitir_anotar", "retirar_anotar"]
+
+
 class AdminUsuarioCriadoOut(Schema):
     usuario: AdminUsuarioOut
     senha_temporaria: str
@@ -220,6 +225,7 @@ class AdminAuditoriaFiltros(Schema):
         | None
     ) = None
     page: int = Field(default=1, ge=1)
+    page_size: int | None = Field(default=None, ge=1, le=100)
 
 
 class AdminAcessoOut(Schema):

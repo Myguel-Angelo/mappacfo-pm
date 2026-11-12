@@ -1,12 +1,12 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { useId } from "react";
 
 import type { StatusAnotacao, TipoAnotacao, Turma } from "@/api/tipos";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ROTULO_STATUS, ROTULO_TIPO } from "@/lib/formato";
 import { cn } from "@/lib/utils";
 
-// Peças das telas de anotações: selos, select nativo, tabela que vira cartões e paginação.
+// Peças das telas de anotações: selos, select nativo e tabela que vira cartões.
 
 export function SeloTipo({ tipo }: { tipo: TipoAnotacao }) {
   return (
@@ -34,16 +34,25 @@ export function SeloStatus({ status }: { status: StatusAnotacao }) {
   return <Badge className={COR_STATUS[status]}>{ROTULO_STATUS[status]}</Badge>;
 }
 
-/** <select> nativo com o visual do Input: no celular abre o seletor do sistema. */
+/**
+ * <select> nativo com o visual do Input: no celular abre o seletor do sistema. A seta é
+ * nossa (appearance-none): a do navegador fica colada na borda e muda de um para outro.
+ */
 export function SelectNativo({ className, ...props }: React.ComponentProps<"select">) {
   return (
-    <select
-      className={cn(
-        "h-10 w-full rounded-lg border border-input bg-card px-2.5 text-base font-normal outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive md:text-sm",
-        className,
-      )}
-      {...props}
-    />
+    <span className="relative block w-full">
+      <select
+        className={cn(
+          "h-10 w-full appearance-none rounded-lg border border-input bg-card pr-9 pl-2.5 text-base font-normal outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive md:text-sm",
+          className,
+        )}
+        {...props}
+      />
+      <ChevronDown
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+    </span>
   );
 }
 
@@ -78,7 +87,78 @@ export type Coluna<T> = {
   titulo: string;
   celula: (item: T) => React.ReactNode;
   className?: string;
+  /** Coluna de botões: só a largura deles, numa linha a partir de lg (abaixo, quebram). */
+  acoes?: boolean;
+  /** Conteúdo do cabeçalho no lugar do título (o título segue como rótulo no celular). */
+  cabecalho?: React.ReactNode;
 };
+
+/** Linhas marcáveis: as chaves marcadas ficam com quem usa a tabela (valem entre páginas). */
+export type Selecao<T> = {
+  marcados: ReadonlySet<React.Key>;
+  onChange: (itens: T[], marcado: boolean) => void;
+  rotulo: (item: T) => string;
+};
+
+/** Marca ou desmarca a página inteira; fica "alguns marcados" no meio do caminho. */
+function CaixaPagina<T>({
+  selecao,
+  itens,
+  chave,
+  rotulo,
+  id,
+}: {
+  selecao: Selecao<T>;
+  itens: T[];
+  chave: (item: T) => React.Key;
+  rotulo?: string;
+  id?: string;
+}) {
+  const marcadosNaPagina = itens.filter((item) => selecao.marcados.has(chave(item))).length;
+  const todos = itens.length > 0 && marcadosNaPagina === itens.length;
+  return (
+    <input
+      type="checkbox"
+      id={id}
+      aria-label={rotulo}
+      className="size-4 align-middle accent-primary"
+      checked={todos}
+      // "Alguns marcados" só existe como propriedade do DOM, não como atributo.
+      ref={(el) => {
+        if (el) el.indeterminate = marcadosNaPagina > 0 && !todos;
+      }}
+      onChange={(e) => selecao.onChange(itens, e.target.checked)}
+    />
+  );
+}
+
+function colunaSelecao<T>(
+  selecao: Selecao<T>,
+  itens: T[],
+  chave: (item: T) => React.Key,
+): Coluna<T> {
+  return {
+    titulo: "Selecionar",
+    className: "md:w-10",
+    cabecalho: (
+      <CaixaPagina
+        selecao={selecao}
+        itens={itens}
+        chave={chave}
+        rotulo="Selecionar todos desta página"
+      />
+    ),
+    celula: (item) => (
+      <input
+        type="checkbox"
+        aria-label={selecao.rotulo(item)}
+        className="size-4 align-middle accent-primary"
+        checked={selecao.marcados.has(chave(item))}
+        onChange={(e) => selecao.onChange([item], e.target.checked)}
+      />
+    ),
+  };
+}
 
 /**
  * Tabela no desktop; abaixo de md cada linha vira um cartão e cada célula mostra o
@@ -89,90 +169,77 @@ export function TabelaResponsiva<T>({
   colunas,
   chave,
   legenda,
+  selecao,
 }: {
   itens: T[];
   colunas: Coluna<T>[];
   chave: (item: T) => React.Key;
   legenda: string;
+  selecao?: Selecao<T>;
 }) {
+  const idMarcarPagina = useId();
+  const todas = selecao ? [colunaSelecao(selecao, itens, chave), ...colunas] : colunas;
   return (
-    <table className="w-full border-separate border-spacing-0 text-sm">
-      <caption className="sr-only">{legenda}</caption>
-      <thead className="max-md:sr-only">
-        <tr>
-          {colunas.map((coluna) => (
-            <th
-              key={coluna.titulo}
-              scope="col"
-              className="bg-primary px-3 py-2 text-left font-bold text-primary-foreground first:rounded-tl-lg last:rounded-tr-lg"
-            >
-              {coluna.titulo}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {itens.map((item) => (
-          <tr
-            key={chave(item)}
-            className="bg-card max-md:mb-3 max-md:block max-md:rounded-lg max-md:border max-md:p-3 max-md:shadow-sm"
-          >
-            {colunas.map((coluna) => (
-              <td
+    // Se os botões numa linha não couberem (perto de lg), a tabela rola aqui, não a página.
+    <div className="md:overflow-x-auto">
+      {/* No celular o cabeçalho (com a caixa de marcar a página) vira só leitor de tela. */}
+      {selecao && itens.length > 0 && (
+        <div className="mb-3 flex items-center gap-2 text-sm font-bold md:hidden">
+          <CaixaPagina selecao={selecao} itens={itens} chave={chave} id={idMarcarPagina} />
+          <label htmlFor={idMarcarPagina}>Marcar todos desta página</label>
+        </div>
+      )}
+      <table className="w-full border-separate border-spacing-0 text-sm">
+        <caption className="sr-only">{legenda}</caption>
+        <thead className="max-md:sr-only">
+          <tr>
+            {todas.map((coluna) => (
+              <th
                 key={coluna.titulo}
-                data-label={coluna.titulo}
-                className={cn(
-                  "border-b border-border px-3 py-2 align-top",
-                  "max-md:flex max-md:gap-3 max-md:border-0 max-md:px-0 max-md:py-1",
-                  "max-md:before:w-28 max-md:before:shrink-0 max-md:before:font-bold max-md:before:content-[attr(data-label)]",
-                  coluna.className,
-                )}
+                scope="col"
+                className="bg-primary px-3 py-2 text-left font-bold text-primary-foreground first:rounded-tl-lg last:rounded-tr-lg"
               >
-                <div className="min-w-0 flex-1 break-words">{coluna.celula(item)}</div>
-              </td>
+                {coluna.cabecalho ?? coluna.titulo}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
-export function Paginacao({
-  pagina,
-  total,
-  porPagina = 50,
-  onChange,
-}: {
-  pagina: number;
-  total: number;
-  porPagina?: number;
-  onChange: (pagina: number) => void;
-}) {
-  const paginas = Math.max(1, Math.ceil(total / porPagina));
-  if (paginas === 1) return null;
-  return (
-    <nav aria-label="Paginação" className="flex items-center justify-center gap-3">
-      <Button
-        variant="outline"
-        onClick={() => onChange(pagina - 1)}
-        disabled={pagina <= 1}
-        aria-label="Página anterior"
-      >
-        <ChevronLeft aria-hidden />
-      </Button>
-      <span className="text-sm">
-        Página {pagina} de {paginas}
-      </span>
-      <Button
-        variant="outline"
-        onClick={() => onChange(pagina + 1)}
-        disabled={pagina >= paginas}
-        aria-label="Próxima página"
-      >
-        <ChevronRight aria-hidden />
-      </Button>
-    </nav>
+        </thead>
+        <tbody>
+          {itens.map((item) => (
+            <tr
+              key={chave(item)}
+              className={cn(
+                "bg-card max-md:mb-3 max-md:block max-md:rounded-lg max-md:border max-md:p-3 max-md:shadow-sm",
+                selecao?.marcados.has(chave(item)) && "bg-accent max-md:border-primary",
+              )}
+            >
+              {todas.map((coluna) => (
+                <td
+                  key={coluna.titulo}
+                  data-label={coluna.titulo}
+                  className={cn(
+                    "border-b border-border px-3 py-2 align-middle",
+                    "max-md:flex max-md:gap-3 max-md:border-0 max-md:px-0 max-md:py-1",
+                    "max-md:before:w-28 max-md:before:shrink-0 max-md:before:font-bold max-md:before:content-[attr(data-label)]",
+                    coluna.acoes && "md:w-px",
+                    coluna.className,
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "min-w-0 flex-1 break-words",
+                      coluna.acoes && "flex flex-wrap gap-2 lg:flex-nowrap",
+                    )}
+                  >
+                    {coluna.celula(item)}
+                  </div>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

@@ -6,16 +6,18 @@ import { useAdminTurmas, useAdminUsuarios, useDefinirAtivo, useResetarSenha } fr
 import type { AdminUsuario } from "@/api/tipos";
 import { useUsuario } from "@/auth/sessao";
 import {
-  Paginacao,
   SelectNativo,
   TabelaResponsiva,
   Titulo,
   type Coluna,
+  type Selecao,
 } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatarDataHora } from "@/lib/formato";
+import { AcoesEmLote } from "@/pages/admin/AcoesEmLote";
 import {
   DialogConfirmar,
   DialogSenhaTemporaria,
@@ -37,6 +39,8 @@ export function Usuarios() {
   const [editando, setEditando] = useState<AdminUsuario | "novo" | null>(null);
   const [confirmando, setConfirmando] = useState<Confirmacao | null>(null);
   const [senha, setSenha] = useState<SenhaEntregue | null>(null);
+  // Marcados por id; valem entre páginas e filtros, até a ação ou "Limpar seleção".
+  const [marcados, setMarcados] = useState<Map<number, AdminUsuario>>(() => new Map());
 
   const termo = useDeferredValue(busca.trim());
   const turmas = useAdminTurmas();
@@ -77,6 +81,20 @@ export function Usuarios() {
       );
     }
   }
+
+  const selecao: Selecao<AdminUsuario> = {
+    marcados: new Set(marcados.keys()),
+    rotulo: (u) => `Selecionar ${u.nome}`,
+    onChange: (itens, marcado) =>
+      setMarcados((atual) => {
+        const novo = new Map(atual);
+        for (const u of itens) {
+          if (marcado) novo.set(u.id, u);
+          else novo.delete(u.id);
+        }
+        return novo;
+      }),
+  };
 
   const colunas: Coluna<AdminUsuario>[] = [
     { titulo: "Numérica", className: "md:w-28", celula: (u) => <strong>{u.numerica}</strong> },
@@ -119,9 +137,9 @@ export function Usuarios() {
     },
     {
       titulo: "Ações",
-      className: "md:w-44",
+      acoes: true,
       celula: (u) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button
             size="sm"
             variant="outline"
@@ -158,7 +176,7 @@ export function Usuarios() {
                 <UserCheck aria-hidden /> Reativar
               </Button>
             ))}
-        </div>
+        </>
       ),
     },
   ];
@@ -197,8 +215,8 @@ export function Usuarios() {
         Usuários
       </Titulo>
 
-      <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="flex flex-col gap-1 sm:col-span-2 lg:col-span-1">
+      <div className="mb-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="flex flex-col gap-1 sm:col-span-3 lg:col-span-1">
           <label htmlFor="busca-usuario" className="text-sm font-bold">
             Buscar
           </label>
@@ -269,10 +287,13 @@ export function Usuarios() {
             colunas={colunas}
             chave={(u) => u.id}
             legenda="Usuários"
+            selecao={selecao}
           />
           <Paginacao pagina={pagina} total={consulta.data.count} onChange={setPagina} />
         </div>
       )}
+
+      <AcoesEmLote usuarios={[...marcados.values()]} onConcluir={() => setMarcados(new Map())} />
 
       <DialogUsuario alvo={editando} onClose={() => setEditando(null)} onSenha={setSenha} />
       <DialogConfirmar

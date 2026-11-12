@@ -3,14 +3,9 @@ import { useState } from "react";
 
 import { useAnotacoes, useTurmas } from "@/api/anotacoes";
 import type { Anotacao } from "@/api/tipos";
-import {
-  FiltroTurma,
-  Paginacao,
-  TabelaResponsiva,
-  Titulo,
-  type Coluna,
-} from "@/components/anotacoes";
+import { FiltroTurma, TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Button } from "@/components/ui/button";
 import { temPermissao, useUsuario } from "@/auth/sessao";
 import { formatarData, formatarDataHora, pessoaComPerfil } from "@/lib/formato";
@@ -30,8 +25,6 @@ export function Despachadas() {
   // O mappa leva todas as despachadas, de todas as turmas, independente do filtro.
   const todas = useAnotacoes({ status: "despachada", page: 1 });
   const totalMappa = todas.data?.count ?? 0;
-
-  if (consulta.data && consulta.data.items.length === 0 && pagina > 1) setPagina(pagina - 1);
 
   const colunas: Coluna<Anotacao>[] = [
     {
@@ -73,9 +66,9 @@ export function Despachadas() {
     },
     {
       titulo: "Ações",
-      className: "md:w-40",
+      acoes: true,
       celula: (a) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button
             size="sm"
             variant="outline"
@@ -97,7 +90,7 @@ export function Despachadas() {
           >
             <Ban aria-hidden /> Anular
           </Button>
-        </div>
+        </>
       ),
     },
   ];

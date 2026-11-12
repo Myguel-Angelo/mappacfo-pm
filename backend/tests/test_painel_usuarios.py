@@ -131,6 +131,76 @@ def test_admin_nao_desativa_a_si_mesmo(api_admin, admin):
     assert resp.json()["detail"] == "Você não pode desativar a si mesmo."
 
 
+def test_desativar_em_lote_conta_so_quem_mudou(api_admin):
+    ativos = UsuarioFactory.create_batch(2, cadete=True)
+    ja_inativo = UsuarioFactory(cadete=True, is_active=False)
+    ids = [u.pk for u in [*ativos, ja_inativo]]
+
+    resp = api_admin.post("admin/usuarios/lote", {"usuario_ids": ids, "acao": "desativar"})
+
+    assert resp.json() == {"quantidade": 2}
+    assert not Usuario.objects.filter(pk__in=ids, is_active=True).exists()
+    assert ativos[0].history.first().is_active is False
+
+    resp = api_admin.post("admin/usuarios/lote", {"usuario_ids": ids, "acao": "reativar"})
+    assert resp.json() == {"quantidade": 3}
+
+
+def test_lote_e_tudo_ou_nada(api_admin, admin):
+    alvo = UsuarioFactory(cadete=True)
+
+    resp = api_admin.post(
+        "admin/usuarios/lote", {"usuario_ids": [alvo.pk, admin.pk], "acao": "desativar"}
+    )
+
+    assert resp.status_code == 400
+    assert resp.json()["detail"] == "Você não pode desativar a si mesmo."
+    alvo.refresh_from_db()
+    assert alvo.is_active is True
+
+
+def test_lote_recusa_usuario_que_nao_existe(api_admin):
+    alvo = UsuarioFactory(cadete=True)
+
+    resp = api_admin.post(
+        "admin/usuarios/lote", {"usuario_ids": [alvo.pk, 999_999], "acao": "permitir_anotar"}
+    )
+
+    assert resp.json()["detail"] == "Algum dos usuários escolhidos não existe mais."
+    assert not alvo.has_perm("anotacoes.anotar")
+
+
+def test_permitir_e_retirar_anotar_em_lote(api_admin):
+    cadetes = UsuarioFactory.create_batch(3, cadete=True)
+    ids = [c.pk for c in cadetes]
+
+    resp = api_admin.post("admin/usuarios/lote", {"usuario_ids": ids, "acao": "permitir_anotar"})
+
+    assert resp.json() == {"quantidade": 3}
+    lista = api_admin.get("admin/usuarios?grupo=Cadete").json()["items"]
+    assert all(u["anotar"] for u in lista if u["id"] in ids)
+
+    resp = api_admin.post("admin/usuarios/lote", {"usuario_ids": ids[:2], "acao": "retirar_anotar"})
+    assert resp.json() == {"quantidade": 2}
+    assert [Usuario.objects.get(pk=i).has_perm("anotacoes.anotar") for i in ids] == [
+        False,
+        False,
+        True,
+    ]
+
+
+def test_lote_exige_gerenciar_usuarios(api):
+    ator = UsuarioFactory(comandante=True)
+    alvo = UsuarioFactory(cadete=True)
+    api.login(ator.numerica)
+
+    resp = api.post("admin/usuarios/lote", {"usuario_ids": [alvo.pk], "acao": "desativar"})
+
+    assert resp.status_code == 403
+    alvo.refresh_from_db()
+    assert alvo.is_active is True
+
+
 def test_unico_administrador_nao_perde_a_permissao(api_admin, admin):
     resp = api_admin.patch(f"admin/usuarios/{admin.pk}", {"grupos": ["Oficial"]})
 

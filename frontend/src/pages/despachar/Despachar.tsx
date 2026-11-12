@@ -5,13 +5,13 @@ import { useAnotacoes, useTurmas } from "@/api/anotacoes";
 import type { Anotacao } from "@/api/tipos";
 import {
   FiltroTurma,
-  Paginacao,
   SeloTipo,
   TabelaResponsiva,
   Titulo,
   type Coluna,
 } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Button } from "@/components/ui/button";
 import { formatarDataHora, pessoaComPerfil } from "@/lib/formato";
 import { DialogAnular, DialogDespacho, DialogPositiva } from "@/pages/despachar/dialogos";
@@ -35,9 +35,6 @@ export function Despachar() {
   const turmas = useTurmas();
   const consulta = useAnotacoes({ status: "notificada", turma_id: turmaId, page: pagina });
 
-  // Despachou o último item da última página: volta uma página.
-  if (consulta.data && consulta.data.items.length === 0 && pagina > 1) setPagina(pagina - 1);
-
   const colunas: Coluna<Anotacao>[] = [
     {
       titulo: "Cadete",
@@ -54,9 +51,9 @@ export function Despachar() {
     { titulo: "Data", className: "md:w-36", celula: (a) => formatarDataHora(a.criada_em) },
     {
       titulo: "Ações",
-      className: "md:w-40",
+      acoes: true,
       celula: (a) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           {a.tipo === "negativa" ? (
             <Button
               size="sm"
@@ -81,7 +78,7 @@ export function Despachar() {
           >
             <Ban aria-hidden /> Anular
           </Button>
-        </div>
+        </>
       ),
     },
   ];

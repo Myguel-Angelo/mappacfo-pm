@@ -169,17 +169,52 @@ def editar_usuario(
     return usuario
 
 
+def _em_lote(ids) -> list:
+    ids = set(ids)
+    if not ids:
+        raise RegraViolada("Escolha pelo menos um usuário.")
+    usuarios = list(Usuario.objects.select_for_update().filter(pk__in=ids).order_by("pk"))
+    if len(usuarios) != len(ids):
+        raise RegraViolada("Algum dos usuários escolhidos não existe mais.")
+    return usuarios
+
+
 @transaction.atomic
-def definir_ativo(admin, usuario, ativo: bool):
+def definir_ativo_em_lote(admin, ids, ativo: bool) -> int:
+    """Tudo ou nada: se um não pode mudar (a própria conta, o último administrador), nenhum
+    muda. Devolve quantos mudaram de fato (os que já estavam assim ficam como estão)."""
     exigir(admin, PERMISSAO)
     _travar_administradores()
-    usuario = Usuario.objects.select_for_update().get(pk=usuario.pk)
-    if not ativo and usuario.pk == admin.pk:
+    usuarios = _em_lote(ids)
+    if not ativo and any(u.pk == admin.pk for u in usuarios):
         raise RegraViolada("Você não pode desativar a si mesmo.")
-    usuario.is_active = ativo
-    usuario.save(update_fields=["is_active"])
+    mudam = [u for u in usuarios if u.is_active != ativo]
+    for usuario in mudam:  # save() um a um: cada mudança entra no histórico
+        usuario.is_active = ativo
+        usuario.save(update_fields=["is_active"])
     _conferir_administradores(admin)
+    return len(mudam)
+
+
+def definir_ativo(admin, usuario, ativo: bool):
+    definir_ativo_em_lote(admin, [usuario.pk], ativo)
+    usuario.refresh_from_db()
     return usuario
+
+
+@transaction.atomic
+def definir_anotar_em_lote(admin, ids, anotar: bool) -> int:
+    """Dá ou tira a permissão individual de anotar. Devolve quantos mudaram."""
+    exigir(admin, PERMISSAO)
+    usuarios = _em_lote(ids)
+    perm = _permissao("anotacoes.anotar")
+    com_permissao = set(
+        perm.user_set.filter(pk__in=[u.pk for u in usuarios]).values_list("pk", flat=True)
+    )
+    mudam = [u for u in usuarios if (u.pk in com_permissao) != anotar]
+    for usuario in mudam:
+        _aplicar_anotar(usuario, anotar)
+    return len(mudam)
 
 
 @transaction.atomic

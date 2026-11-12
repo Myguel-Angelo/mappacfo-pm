@@ -10,6 +10,7 @@ import { useAdminPunicoes, useSalvarPunicao } from "@/api/admin";
 import type { AdminPunicao } from "@/api/tipos";
 import { TabelaResponsiva, Titulo, type Coluna } from "@/components/anotacoes";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Campo, ErroFormulario } from "@/components/formulario";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,12 +24,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { aplicarErrosNosCampos } from "@/lib/formulario";
+import { usePaginaLocal } from "@/lib/paginacao";
 import { SeloAtivo } from "@/pages/admin/comum";
 
 export function Punicoes() {
   const consulta = useAdminPunicoes();
   const alternar = useSalvarPunicao();
   const [editando, setEditando] = useState<AdminPunicao | "nova" | null>(null);
+  const pagina = usePaginaLocal(consulta.data ?? []);
 
   const colunas: Coluna<AdminPunicao>[] = [
     { titulo: "Tipo de punição", celula: (p) => <strong>{p.nome}</strong> },
@@ -40,9 +43,9 @@ export function Punicoes() {
     },
     {
       titulo: "Ações",
-      className: "md:w-56",
+      acoes: true,
       celula: (p) => (
-        <div className="flex flex-wrap gap-2">
+        <>
           <Button size="sm" variant="outline" onClick={() => setEditando(p)}>
             <Pencil aria-hidden /> Renomear
           </Button>
@@ -66,7 +69,7 @@ export function Punicoes() {
             {p.ativo ? <PowerOff aria-hidden /> : <Power aria-hidden />}
             {p.ativo ? "Desativar" : "Ativar"}
           </Button>
-        </div>
+        </>
       ),
     },
   ];
@@ -93,12 +96,15 @@ export function Punicoes() {
       ) : consulta.data.length === 0 ? (
         <Vazio>Nenhum tipo de punição cadastrado.</Vazio>
       ) : (
-        <TabelaResponsiva
-          itens={consulta.data}
-          colunas={colunas}
-          chave={(p) => p.id}
-          legenda="Tipos de punição"
-        />
+        <div className="flex flex-col gap-4">
+          <TabelaResponsiva
+            itens={pagina.itens}
+            colunas={colunas}
+            chave={(p) => p.id}
+            legenda="Tipos de punição"
+          />
+          <Paginacao pagina={pagina.pagina} total={pagina.total} onChange={pagina.irPara} />
+        </div>
       )}
 
       <Dialog open={editando !== null} onOpenChange={(valor) => !valor && setEditando(null)}>

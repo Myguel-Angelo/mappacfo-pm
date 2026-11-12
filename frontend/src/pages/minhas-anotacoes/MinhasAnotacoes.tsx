@@ -3,8 +3,10 @@ import type { Anotacao } from "@/api/tipos";
 import { SeloStatus, SeloTipo, Titulo } from "@/components/anotacoes";
 import { Badge } from "@/components/ui/badge";
 import { Carregando, ErroCarregar, Vazio } from "@/components/estados";
+import { Paginacao } from "@/components/paginacao";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatarData, formatarDataHora, pessoaComPerfil } from "@/lib/formato";
+import { usePaginaLocal } from "@/lib/paginacao";
 
 /** Despachada que foi para o mappa: fica arquivada, mas a punição ainda é para cumprir. */
 function noMappa(anotacao: Anotacao) {
@@ -54,27 +56,31 @@ export function MinhasAnotacoes() {
               </TabsTrigger>
             ))}
           </TabsList>
-          {ABAS.map((aba) => {
-            const itens = consulta.data.filter(aba.filtro);
-            return (
-              <TabsContent key={aba.valor} value={aba.valor} className="mt-4">
-                {itens.length === 0 ? (
-                  <Vazio>{aba.vazio}</Vazio>
-                ) : (
-                  <ul className="flex flex-col gap-3">
-                    {itens.map((anotacao) => (
-                      <li key={anotacao.id}>
-                        <CartaoAnotacao anotacao={anotacao} />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </TabsContent>
-            );
-          })}
+          {ABAS.map((aba) => (
+            <TabsContent key={aba.valor} value={aba.valor} className="mt-4">
+              <ListaDaAba itens={consulta.data.filter(aba.filtro)} vazio={aba.vazio} />
+            </TabsContent>
+          ))}
         </Tabs>
       )}
     </>
+  );
+}
+
+function ListaDaAba({ itens, vazio }: { itens: Anotacao[]; vazio: string }) {
+  const pagina = usePaginaLocal(itens);
+  if (itens.length === 0) return <Vazio>{vazio}</Vazio>;
+  return (
+    <div className="flex flex-col gap-4">
+      <ul className="flex flex-col gap-3">
+        {pagina.itens.map((anotacao) => (
+          <li key={anotacao.id}>
+            <CartaoAnotacao anotacao={anotacao} />
+          </li>
+        ))}
+      </ul>
+      <Paginacao pagina={pagina.pagina} total={pagina.total} onChange={pagina.irPara} />
+    </div>
   );
 }
 
