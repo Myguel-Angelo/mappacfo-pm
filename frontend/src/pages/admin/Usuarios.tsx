@@ -66,7 +66,7 @@ export function Usuarios() {
       resetar.mutate(usuario.id, {
         onSuccess: ({ senha_temporaria }) => {
           setConfirmando(null);
-          setSenha({ numerica: usuario.numerica, nome: usuario.nome, senha: senha_temporaria });
+          setSenha({ login: usuario.login, nome: usuario.nome, senha: senha_temporaria });
         },
       });
     } else {
@@ -103,6 +103,7 @@ export function Usuarios() {
       celula: (u) => (
         <>
           {u.nome}
+          <span className="block text-xs text-muted-foreground">Login: {u.login}</span>
           {u.email && <span className="block text-xs text-muted-foreground">{u.email}</span>}
         </>
       ),
@@ -230,7 +231,7 @@ export function Usuarios() {
               type="search"
               value={busca}
               onChange={(e) => filtrar(() => setBusca(e.target.value))}
-              placeholder="Nome ou numérica"
+              placeholder="Nome, nome de guerra ou numérica"
               className="pl-9"
             />
           </span>

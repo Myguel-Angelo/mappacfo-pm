@@ -15,10 +15,10 @@ beforeEach(() => {
   );
 });
 
-async function entrar(numerica = "1001", senha = "Senha-dev-123") {
+async function entrar(login = "CAD SILVA", senha = "Senha-dev-123") {
   const usuarioEvento = userEvent.setup();
   renderizar(<Route path="/login" element={<Login />} />, { em: "/login" });
-  await usuarioEvento.type(await screen.findByLabelText("Numérica"), numerica);
+  await usuarioEvento.type(await screen.findByLabelText("Nome de guerra"), login);
   await usuarioEvento.type(screen.getByLabelText("Senha"), senha);
   await usuarioEvento.click(screen.getByRole("button", { name: "Entrar" }));
 }
@@ -29,20 +29,20 @@ test("campos vazios mostram os erros sem chamar a api", async () => {
 
   await usuarioEvento.click(await screen.findByRole("button", { name: "Entrar" }));
 
-  expect(screen.getByText("Informe a numérica.")).toBeInTheDocument();
+  expect(screen.getByText("Informe o nome de guerra.")).toBeInTheDocument();
   expect(screen.getByText("Informe a senha.")).toBeInTheDocument();
 });
 
 test("senha errada mostra a mensagem da api e limpa a senha", async () => {
   servidor.use(
     http.post("/api/auth/login", () =>
-      HttpResponse.json({ detail: "Numérica ou senha incorreta." }, { status: 401 }),
+      HttpResponse.json({ detail: "Nome de guerra ou senha incorreta." }, { status: 401 }),
     ),
   );
 
-  await entrar("1001", "errada");
+  await entrar("CAD SILVA", "errada");
 
-  expect(await screen.findByText("Numérica ou senha incorreta.")).toBeInTheDocument();
+  expect(await screen.findByText("Nome de guerra ou senha incorreta.")).toBeInTheDocument();
   expect(screen.getByLabelText("Senha")).toHaveValue("");
 });
 

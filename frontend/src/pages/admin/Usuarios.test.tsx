@@ -76,8 +76,9 @@ test("cadete sem turma nao e enviado", async () => {
   abrir();
   await userEvent.click(await screen.findByRole("button", { name: "Novo usuário" }));
   const dialogo = screen.getByRole("dialog");
-  await userEvent.type(within(dialogo).getByLabelText("Numérica (login)"), "4001");
+  await userEvent.type(within(dialogo).getByLabelText("Numérica"), "4001");
   await userEvent.type(within(dialogo).getByLabelText("Nome completo"), "Novo Cadete");
+  await userEvent.type(within(dialogo).getByLabelText("Nome de guerra"), "Novato");
 
   await userEvent.click(within(dialogo).getByRole("button", { name: "Criar e gerar senha" }));
 
@@ -89,8 +90,9 @@ test("cria e mostra a senha temporaria uma unica vez", async () => {
   abrir();
   await userEvent.click(await screen.findByRole("button", { name: "Novo usuário" }));
   const dialogo = screen.getByRole("dialog");
-  await userEvent.type(within(dialogo).getByLabelText("Numérica (login)"), "4001");
+  await userEvent.type(within(dialogo).getByLabelText("Numérica"), "4001");
   await userEvent.type(within(dialogo).getByLabelText("Nome completo"), "Novo Cadete");
+  await userEvent.type(within(dialogo).getByLabelText("Nome de guerra"), "Novato");
   await within(dialogo).findByRole("option", { name: "CFO I" });
   await userEvent.selectOptions(within(dialogo).getByLabelText("Turma"), "CFO I");
 
@@ -101,6 +103,7 @@ test("cria e mostra a senha temporaria uma unica vez", async () => {
     {
       numerica: "4001",
       nome: "Novo Cadete",
+      nome_guerra: "Novato",
       email: "",
       turma_id: 1,
       grupos: ["Cadete"],

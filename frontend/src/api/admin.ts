@@ -71,6 +71,7 @@ export function useAdminUsuarios(filtros: FiltrosUsuarios) {
 
 export type DadosUsuario = {
   numerica: string;
+  nome_guerra: string;
   nome: string;
   email: string;
   turma_id: number | null;

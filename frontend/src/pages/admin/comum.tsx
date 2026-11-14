@@ -63,7 +63,28 @@ export function DialogConfirmar({
   );
 }
 
-export type SenhaEntregue = { numerica: string; nome: string; senha: string };
+export type SenhaEntregue = { login: string; nome: string; senha: string };
+
+/** A senha em destaque, com botão de copiar. */
+export function CaixaSenha({ senha }: { senha: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-lg border-2 border-dashed border-primary bg-card p-3">
+      <code className="flex-1 text-center font-mono text-2xl tracking-wider text-primary">
+        {senha}
+      </code>
+      <Button
+        variant="outline"
+        size="icon"
+        aria-label="Copiar senha"
+        onClick={() =>
+          void navigator.clipboard?.writeText(senha).then(() => toast.success("Senha copiada."))
+        }
+      >
+        <Copy aria-hidden />
+      </Button>
+    </div>
+  );
+}
 
 /**
  * A senha temporária só existe nesta resposta: não fica em lista, log nem cache. Fechar o
@@ -86,27 +107,12 @@ export function DialogSenhaTemporaria({
                 <KeyRound className="size-5" aria-hidden /> Senha temporária
               </DialogTitle>
               <DialogDescription>
-                {entrega.numerica} — {entrega.nome}. Entregue esta senha ao usuário: ela não será
-                mostrada de novo. No primeiro acesso ele terá de criar uma senha própria.
+                {entrega.nome} entra com <strong>{entrega.login}</strong> e esta senha. Entregue a
+                senha ao usuário: ela não será mostrada de novo. No primeiro acesso ele terá de
+                criar uma senha própria.
               </DialogDescription>
             </DialogHeader>
-            <div className="flex items-center gap-2 rounded-lg border-2 border-dashed border-primary bg-card p-3">
-              <code className="flex-1 text-center font-mono text-2xl tracking-wider text-primary">
-                {entrega.senha}
-              </code>
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="Copiar senha"
-                onClick={() =>
-                  void navigator.clipboard
-                    ?.writeText(entrega.senha)
-                    .then(() => toast.success("Senha copiada."))
-                }
-              >
-                <Copy aria-hidden />
-              </Button>
-            </div>
+            <CaixaSenha senha={entrega.senha} />
             <DialogFooter>
               <DialogClose asChild>
                 <Button>Já anotei</Button>

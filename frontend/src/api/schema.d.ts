@@ -736,8 +736,8 @@ export interface components {
         };
         /** LoginIn */
         LoginIn: {
-            /** Numerica */
-            numerica: string;
+            /** Login */
+            login: string;
             /** Senha */
             senha: string;
         };
@@ -1165,6 +1165,11 @@ export interface components {
             numerica: string;
             /** Nome */
             nome: string;
+            /**
+             * Nome Guerra
+             * @default
+             */
+            nome_guerra: string;
             /** Turma */
             turma: string;
             /** Email */
@@ -1206,15 +1211,17 @@ export interface components {
             numerica: string;
             /** Nome */
             nome: string;
+            /** Login */
+            login: string;
             /** Turma */
             turma: string;
-            /** Senha Temporaria */
-            senha_temporaria: string;
         };
         /** AdminResultadoImportacaoOut */
         AdminResultadoImportacaoOut: {
             /** Criados */
             criados: components["schemas"]["AdminCadeteCriadoOut"][];
+            /** Senha Temporaria */
+            senha_temporaria: string | null;
             /** Atualizados */
             atualizados: number;
             /** Ignorados */

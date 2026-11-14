@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const schema = z.object({
-  numerica: z.string().trim().min(1, "Informe a numérica."),
+  login: z.string().trim().min(1, "Informe o nome de guerra."),
   senha: z.string().min(1, "Informe a senha."),
 });
 
@@ -26,7 +26,7 @@ export function Login() {
 
   const form = useForm<Dados>({
     resolver: zodResolver(schema),
-    defaultValues: { numerica: "", senha: "" },
+    defaultValues: { login: "", senha: "" },
   });
   const { errors } = form.formState;
 
@@ -49,13 +49,22 @@ export function Login() {
         </div>
 
         <form onSubmit={enviar} noValidate className="flex flex-col gap-4">
-          <Campo rotulo="Numérica" erro={errors.numerica}>
+          <Campo
+            rotulo="Nome de guerra"
+            erro={errors.login}
+            descricao={
+              <>
+                Cadetes: digite <strong>CAD</strong> antes do nome de guerra (ex.: CAD SILVA).
+              </>
+            }
+          >
             {(props) => (
               <Input
                 {...props}
-                {...form.register("numerica")}
+                {...form.register("login")}
                 autoComplete="username"
-                autoCapitalize="none"
+                autoCapitalize="characters"
+                spellCheck={false}
               />
             )}
           </Campo>
