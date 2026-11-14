@@ -6,13 +6,14 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.db.models import Count, Prefetch, Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from ninja import File, Form, Query, Router, Status
 from ninja.files import UploadedFile
 from ninja.pagination import PageNumberPagination, paginate
 
-from administracao import auditoria, cadastros, importacao, usuarios
+from administracao import auditoria, cadastros, importacao, planilhas, usuarios
 from administracao.models import ImportacaoCadetes
 from administracao.schemas import (
     AdminAcessoOut,
@@ -243,6 +244,30 @@ def confirmar_importacao(request, importacao_id: UUID):
     _admin(request)
     previa = get_object_or_404(ImportacaoCadetes, pk=importacao_id)
     return importacao.confirmar(request.user, previa)
+
+
+_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+def _xlsx(conteudo: bytes, nome: str) -> HttpResponse:
+    resposta = HttpResponse(conteudo, content_type=_XLSX)
+    resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta
+
+
+@router.get("/importacoes/modelo", response={403: ErroOut})
+def baixar_modelo_importacao(request):
+    _admin(request)
+    return _xlsx(planilhas.modelo_importacao(), "modelo-cadetes.xlsx")
+
+
+@router.get("/importacoes/{importacao_id}/logins", response={**ERROS})
+def baixar_logins_importacao(request, importacao_id: UUID):
+    """Quem a importação criou e com que texto entra (sem senha), para divulgar à turma."""
+    _admin(request)
+    feita = get_object_or_404(ImportacaoCadetes, pk=importacao_id)
+    return _xlsx(planilhas.logins_importacao(importacao.criados(feita)), "logins-cadetes.xlsx")
 
 
 # Auditoria

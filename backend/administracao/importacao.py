@@ -23,6 +23,7 @@ from django.utils import timezone
 from openpyxl import load_workbook
 
 from administracao.models import ImportacaoCadetes
+from administracao.planilhas import ABA_CADETES
 from administracao.usuarios import PERMISSAO, gerar_senha_temporaria
 from contas import nome_guerra as ng
 from contas.models import GRUPO_CADETE, Turma
@@ -83,8 +84,10 @@ def _ler_xlsx(conteudo: bytes) -> list[list]:
         planilha = load_workbook(io.BytesIO(conteudo), read_only=True, data_only=True)
     except Exception:  # noqa: BLE001 - qualquer arquivo corrompido vira a mesma mensagem
         raise RegraViolada("Não foi possível ler a planilha. Envie um .xlsx ou .csv.") from None
+    # A aba Cadetes do modelo, se existir: salvar com outra aba aberta não muda o que é lido.
+    aba = planilha[ABA_CADETES] if ABA_CADETES in planilha.sheetnames else planilha.active
     try:
-        return [list(linha) for linha in planilha.active.iter_rows(values_only=True)]
+        return [list(linha) for linha in aba.iter_rows(values_only=True)]
     finally:
         planilha.close()
 
@@ -264,6 +267,19 @@ def criar_previa(
         linhas=analisar(
             linhas, atualizar_existentes=atualizar_existentes, criar_turmas=criar_turmas
         ),
+    )
+
+
+def criados(importacao):
+    """Os cadetes que esta importação criou, por turma e nome."""
+    if importacao.confirmada_em is None:
+        raise RegraViolada("Esta importação ainda não foi confirmada.")
+    numericas = [linha["numerica"] for linha in importacao.linhas if linha["acao"] == CRIAR]
+    return (
+        Usuario.objects.filter(numerica__in=numericas)
+        .select_related("turma")
+        .prefetch_related("groups")
+        .order_by("turma__nome", "nome")
     )
 
 

@@ -22,22 +22,6 @@ const ACOES: Record<string, { rotulo: string; cor: string }> = {
   erro: { rotulo: "Erro", cor: "bg-red-100 text-red-900" },
 };
 
-/** Lista de logins para divulgar à turma (sem a senha). Gerada no navegador. */
-function baixarLogins(resultado: AdminResultadoImportacao) {
-  const escapar = (valor: string) => `"${valor.replaceAll('"', '""')}"`;
-  const linhas = [
-    "numerica;nome;login;turma",
-    ...resultado.criados.map((c) => [c.numerica, c.nome, c.login, c.turma].map(escapar).join(";")),
-  ];
-  // BOM: o Excel abre o UTF-8 com os acentos certos.
-  const arquivo = new Blob(["﻿" + linhas.join("\r\n")], { type: "text/csv;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(arquivo);
-  link.download = "logins-importacao.csv";
-  link.click();
-  URL.revokeObjectURL(link.href);
-}
-
 export function Importar() {
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [atualizar, setAtualizar] = useState(false);
@@ -80,13 +64,13 @@ export function Importar() {
                 guerra e é obrigado a trocar a senha no primeiro acesso.
               </p>
               <CaixaSenha senha={resultado.senha_temporaria} />
-              <Button
-                variant="outline"
-                className="self-start"
-                onClick={() => baixarLogins(resultado)}
-              >
-                <Download aria-hidden /> Baixar lista de logins (CSV)
-              </Button>
+              {previa && (
+                <Button asChild variant="outline" className="self-start">
+                  <a href={`/api/admin/importacoes/${previa.id}/logins`} download>
+                    <Download aria-hidden /> Baixar lista de logins (Excel)
+                  </a>
+                </Button>
+              )}
             </section>
           )}
           <Button variant="outline" className="self-start" onClick={recomecar}>
@@ -152,13 +136,21 @@ export function Importar() {
             (e <code>email</code>, opcional). O nome de guerra vai sem o CAD. Nada é gravado antes
             de você conferir a prévia.
           </p>
-          <a
-            href="/modelo-cadetes.csv"
-            download
-            className="inline-flex items-center gap-2 self-start text-sm font-bold text-primary underline"
-          >
-            <Download className="size-4" aria-hidden /> Baixar planilha modelo
-          </a>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <a
+              href="/api/admin/importacoes/modelo"
+              download
+              className="inline-flex items-center gap-2 font-bold text-primary underline"
+            >
+              <Download className="size-4" aria-hidden /> Baixar planilha modelo (Excel)
+            </a>
+            <span className="text-muted-foreground">
+              ou{" "}
+              <a href="/modelo-cadetes.csv" download className="underline">
+                em CSV
+              </a>
+            </span>
+          </p>
           <div className="flex flex-col gap-1">
             <label htmlFor="arquivo-importacao" className="text-sm font-bold">
               Planilha
