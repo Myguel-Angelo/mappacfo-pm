@@ -105,16 +105,19 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # Limite de tentativas de login (django-axes)
 
 AUTHENTICATION_BACKENDS = [
-    "axes.backends.AxesStandaloneBackend",  # antes do ModelBackend
-    "django.contrib.auth.backends.ModelBackend",
+    "axes.backends.AxesStandaloneBackend",  # antes dos outros: barra quem está bloqueado
+    "contas.login.NomeDeGuerraBackend",  # o login do sistema ("CAD BRUNO" + senha)
+    "django.contrib.auth.backends.ModelBackend",  # só o admin do Django, pela numérica
 ]
 
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = timedelta(minutes=15)
-# Bloqueia a combinação numérica + IP: os cadetes saem pelo mesmo IP da rede da academia,
-# então bloquear só pelo IP derrubaria todo mundo por causa dos erros de um.
+# Bloqueia a combinação conta + IP: os cadetes saem pelo mesmo IP da rede da academia,
+# então bloquear só pelo IP derrubaria todo mundo por causa dos erros de um. A "conta" é a
+# numérica de quem o nome de guerra digitado aponta (com a tolerância a erro de digitação),
+# para que variar a grafia não dê tentativas a mais.
 AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
-AXES_USERNAME_FORM_FIELD = "numerica"
+AXES_USERNAME_CALLABLE = "contas.login.usuario_do_axes"
 AXES_RESET_ON_SUCCESS = True
 AXES_LOCKOUT_CALLABLE = "contas.bloqueio.resposta_bloqueio"
 # Atrás do Caddy (fase 8) o IP real vem do X-Forwarded-For: definir AXES_IPWARE_PROXY_COUNT.

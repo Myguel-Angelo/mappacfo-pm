@@ -6,6 +6,7 @@ from axes.utils import reset as axes_reset
 from django.test import Client
 from django.utils import timezone
 
+from contas.models import Usuario
 from tests.factories import SENHA, TipoPunicaoFactory, UsuarioFactory
 
 
@@ -46,8 +47,15 @@ class ClienteApi:
         )
 
     def login(self, numerica, senha=SENHA):
+        """Entra como o usuário desta numérica, digitando o que ele digitaria ("CAD BRUNO").
+        Numérica que não existe vai como texto de login, como está."""
+        usuario = Usuario.objects.filter(numerica=numerica).first()
+        texto = usuario.texto_login if usuario else numerica
+        return self.entrar(texto, senha)
+
+    def entrar(self, texto, senha=SENHA):
         self.csrf()
-        return self.post("auth/login", {"numerica": numerica, "senha": senha})
+        return self.post("auth/login", {"login": texto, "senha": senha})
 
 
 @pytest.fixture(autouse=True)
