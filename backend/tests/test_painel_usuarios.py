@@ -35,13 +35,22 @@ def test_criar_usuario_devolve_a_senha_uma_vez_e_pede_troca(api_admin):
 
     resp = api_admin.post(
         "admin/usuarios",
-        {"numerica": "4001", "nome": "Novo Cadete", "turma_id": turma.pk, "grupos": ["Cadete"]},
+        {
+            "numerica": "4001",
+            "nome": "Novo Cadete",
+            "nome_guerra": "CAD Novato",
+            "turma_id": turma.pk,
+            "grupos": ["Cadete"],
+        },
     )
 
     assert resp.status_code == 201
     dados = resp.json()
     senha = dados["senha_temporaria"]
     assert dados["usuario"]["grupos"] == ["Cadete"]
+    # O CAD da entrada é só do login: guarda-se o nome de guerra puro.
+    assert dados["usuario"]["nome_guerra"] == "Novato"
+    assert dados["usuario"]["login"] == "CAD Novato"
     assert dados["usuario"]["deve_trocar_senha"] is True
     # A senha não volta em nenhuma outra resposta.
     assert senha not in api_admin.get("admin/usuarios").content.decode()
@@ -54,9 +63,18 @@ def test_criar_usuario_devolve_a_senha_uma_vez_e_pede_troca(api_admin):
 @pytest.mark.parametrize(
     ("dados", "mensagem"),
     [
-        ({"numerica": "4002", "nome": "X", "grupos": ["Cadete"]}, "Cadete precisa de uma turma."),
-        ({"numerica": "4002", "nome": "X", "grupos": ["Chefe"]}, "Grupo inválido: Chefe."),
-        ({"numerica": "4002", "nome": "X", "email": "nao-e-email"}, "E-mail inválido."),
+        (
+            {"numerica": "4002", "nome": "X", "nome_guerra": "X", "grupos": ["Cadete"]},
+            "Cadete precisa de uma turma.",
+        ),
+        (
+            {"numerica": "4002", "nome": "X", "nome_guerra": "X", "grupos": ["Chefe"]},
+            "Grupo inválido: Chefe.",
+        ),
+        (
+            {"numerica": "4002", "nome": "X", "nome_guerra": "X", "email": "nao-e-email"},
+            "E-mail inválido.",
+        ),
     ],
 )
 def test_criar_valida_os_dados(api_admin, dados, mensagem):
@@ -70,9 +88,36 @@ def test_criar_valida_os_dados(api_admin, dados, mensagem):
 def test_numerica_repetida_e_recusada(api_admin):
     UsuarioFactory(numerica="ABC1")
 
-    resp = api_admin.post("admin/usuarios", {"numerica": "abc1", "nome": "Outro"})
+    resp = api_admin.post(
+        "admin/usuarios", {"numerica": "abc1", "nome": "Outro", "nome_guerra": "Outro"}
+    )
 
     assert resp.json()["detail"] == "Já existe um usuário com esta numérica."
+
+
+def test_nome_de_guerra_repetido_e_recusado_mesmo_com_acento_e_caixa(api_admin):
+    UsuarioFactory(nome_guerra="Ten. Cássio")
+    cadete = UsuarioFactory(cadete=True, nome_guerra="Bruno")
+
+    resp = api_admin.post(
+        "admin/usuarios", {"numerica": "5001", "nome": "Outro", "nome_guerra": "ten cassio"}
+    )
+    assert resp.json()["detail"] == 'Já existe um usuário com o nome de guerra "ten cassio".'
+
+    resp = api_admin.patch(f"admin/usuarios/{cadete.pk}", {"nome_guerra": "TEN CASSIO"})
+    assert resp.status_code == 400
+    # Manter o próprio nome (mudando só a caixa) não é repetição.
+    resp = api_admin.patch(f"admin/usuarios/{cadete.pk}", {"nome_guerra": "BRUNO"})
+    assert resp.json()["login"] == "CAD BRUNO"
+
+
+def test_busca_acha_pelo_nome_de_guerra(api_admin):
+    UsuarioFactory(cadete=True, nome="Bruno Henrique Souza", nome_guerra="Henrique")
+    UsuarioFactory(cadete=True, nome="Outra Pessoa", nome_guerra="Outra")
+
+    itens = api_admin.get("admin/usuarios?busca=henrique").json()["items"]
+
+    assert [u["nome_guerra"] for u in itens] == ["Henrique"]
 
 
 def test_editar_muda_so_o_informado_e_da_anotar(api_admin):
@@ -242,7 +287,8 @@ def test_rotas_de_usuarios_exigem_gerenciar_usuarios(api, perfil, metodo, caminh
     alvo = UsuarioFactory()
     api.login(ator.numerica)
 
-    corpo = {"numerica": "9999", "nome": "X"}  # válido: o 403 vem da permissão, não do schema
+    # Válido: o 403 vem da permissão, não do schema.
+    corpo = {"numerica": "9999", "nome": "X", "nome_guerra": "X"}
     resp = getattr(api, metodo)(caminho.format(id=alvo.pk), *([corpo] if metodo != "get" else []))
 
     assert resp.status_code == 403

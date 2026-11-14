@@ -26,6 +26,7 @@ const schema = z
   .object({
     numerica: z.string().trim().min(1, "Informe a numérica.").max(20),
     nome: z.string().trim().min(1, "Informe o nome.").max(120),
+    nome_guerra: z.string().trim().min(1, "Informe o nome de guerra.").max(40),
     email: z.union([z.literal(""), z.email("E-mail inválido.")]),
     turma_id: z.string(),
     grupos: z.array(z.string()),
@@ -83,6 +84,7 @@ function Formulario({
     defaultValues: {
       numerica: usuario?.numerica ?? "",
       nome: usuario?.nome ?? "",
+      nome_guerra: usuario?.nome_guerra ?? "",
       email: usuario?.email ?? "",
       turma_id: usuario?.turma ? String(usuario.turma.id) : "",
       grupos: usuario?.grupos ?? ["Cadete"],
@@ -96,13 +98,20 @@ function Formulario({
   const enviar = form.handleSubmit((dados) => {
     const corpo = {
       nome: dados.nome,
+      nome_guerra: dados.nome_guerra,
       email: dados.email,
       turma_id: dados.turma_id ? Number(dados.turma_id) : null,
       grupos: dados.grupos,
       anotar: ehCadete && dados.anotar,
     };
     const aoErrar = (erro: unknown) =>
-      aplicarErrosNosCampos(erro, form.setError, ["numerica", "nome", "email", "turma_id"]);
+      aplicarErrosNosCampos(erro, form.setError, [
+        "numerica",
+        "nome",
+        "nome_guerra",
+        "email",
+        "turma_id",
+      ]);
     if (usuario) {
       editar.mutate(
         { id: usuario.id, ...corpo },
@@ -120,7 +129,7 @@ function Formulario({
         {
           onSuccess: ({ usuario: novo, senha_temporaria }) => {
             onClose();
-            onSenha({ numerica: novo.numerica, nome: novo.nome, senha: senha_temporaria });
+            onSenha({ login: novo.login, nome: novo.nome, senha: senha_temporaria });
           },
           onError: aoErrar,
         },
@@ -135,12 +144,23 @@ function Formulario({
       </DialogHeader>
 
       {!usuario && (
-        <Campo rotulo="Numérica (login)" erro={errors.numerica}>
+        <Campo rotulo="Numérica" erro={errors.numerica}>
           {(props) => <Input {...props} {...form.register("numerica")} autoCapitalize="none" />}
         </Campo>
       )}
       <Campo rotulo="Nome completo" erro={errors.nome}>
         {(props) => <Input {...props} {...form.register("nome")} />}
+      </Campo>
+      <Campo
+        rotulo="Nome de guerra"
+        erro={errors.nome_guerra}
+        descricao={
+          ehCadete
+            ? "É o login, com CAD na frente (ex.: CAD SILVA). Não precisa digitar o CAD aqui."
+            : "É o login (ex.: TEN SILVA). Não pode repetir o de outro usuário."
+        }
+      >
+        {(props) => <Input {...props} {...form.register("nome_guerra")} />}
       </Campo>
       <Campo rotulo="E-mail (opcional)" erro={errors.email}>
         {(props) => <Input {...props} {...form.register("email")} type="email" />}

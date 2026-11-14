@@ -6,7 +6,7 @@ from tests.factories import SENHA, UsuarioFactory
 
 pytestmark = pytest.mark.django_db
 
-MSG_LOGIN_INVALIDO = "Numérica ou senha incorreta."
+MSG_LOGIN_INVALIDO = "Nome de guerra ou senha incorreta."
 
 
 # Login
@@ -34,7 +34,7 @@ def test_login_troca_a_sessao(api, usuario):
 
 
 def test_login_sem_csrf_retorna_403(api, usuario):
-    resp = api.post("auth/login", {"numerica": usuario.numerica, "senha": SENHA}, com_csrf=False)
+    resp = api.post("auth/login", {"login": usuario.nome_guerra, "senha": SENHA}, com_csrf=False)
 
     assert resp.status_code == 403
     assert "sessionid" not in api.cookies
@@ -47,8 +47,8 @@ def test_login_senha_errada_retorna_401(api, usuario):
     assert resp.json()["detail"] == MSG_LOGIN_INVALIDO
 
 
-def test_login_numerica_inexistente_tem_a_mesma_mensagem(api, db):
-    resp = api.login("000000", "qualquer")
+def test_login_nome_inexistente_tem_a_mesma_mensagem(api, db):
+    resp = api.entrar("Ninguem Assim", "qualquer")
 
     assert resp.status_code == 401
     assert resp.json()["detail"] == MSG_LOGIN_INVALIDO

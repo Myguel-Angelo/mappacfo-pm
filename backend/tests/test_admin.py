@@ -24,6 +24,7 @@ def test_criar_usuario_pelo_admin(admin_client):
         {
             "numerica": "777",
             "nome": "Via Admin",
+            "nome_guerra": "Via Admin",
             "usable_password": "true",
             "password1": senha,
             "password2": senha,

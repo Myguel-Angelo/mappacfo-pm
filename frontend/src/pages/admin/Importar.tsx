@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { formatarDataHora } from "@/lib/formato";
 import { usePaginaLocal } from "@/lib/paginacao";
 import { cn } from "@/lib/utils";
-import { Caixa } from "@/pages/admin/comum";
+import { Caixa, CaixaSenha } from "@/pages/admin/comum";
 
 const ACOES: Record<string, { rotulo: string; cor: string }> = {
   criar: { rotulo: "Criar", cor: "bg-green-100 text-green-900" },
@@ -21,24 +21,6 @@ const ACOES: Record<string, { rotulo: string; cor: string }> = {
   ignorar: { rotulo: "Ignorar", cor: "bg-muted text-muted-foreground" },
   erro: { rotulo: "Erro", cor: "bg-red-100 text-red-900" },
 };
-
-/** CSV das senhas para o oficial distribuir. Gerado no navegador: não passa por servidor. */
-function baixarSenhas(resultado: AdminResultadoImportacao) {
-  const escapar = (valor: string) => `"${valor.replaceAll('"', '""')}"`;
-  const linhas = [
-    "numerica;nome;turma;senha_temporaria",
-    ...resultado.criados.map((c) =>
-      [c.numerica, c.nome, c.turma, c.senha_temporaria].map(escapar).join(";"),
-    ),
-  ];
-  // BOM: o Excel abre o UTF-8 com os acentos certos.
-  const arquivo = new Blob(["﻿" + linhas.join("\r\n")], { type: "text/csv;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(arquivo);
-  link.download = "senhas-temporarias.csv";
-  link.click();
-  URL.revokeObjectURL(link.href);
-}
 
 export function Importar() {
   const [arquivo, setArquivo] = useState<File | null>(null);
@@ -70,17 +52,26 @@ export function Importar() {
             {resultado.criados.length} cadete(s) criado(s), {resultado.atualizados} atualizado(s) e{" "}
             {resultado.ignorados} ignorado(s).
           </p>
-          {resultado.criados.length > 0 && (
-            <div className="rounded-lg border-2 border-dashed border-primary bg-card p-4">
-              <p className="font-bold">Baixe as senhas temporárias agora.</p>
+          {resultado.senha_temporaria && (
+            <section
+              aria-label="Senha temporária"
+              className="flex max-w-xl flex-col gap-3 rounded-lg border bg-card p-4"
+            >
+              <p className="font-bold">Anote a senha temporária agora.</p>
               <p className="text-sm text-muted-foreground">
-                Elas não ficam guardadas em lugar nenhum e somem quando você sair desta tela. Cada
-                cadete troca a senha no primeiro acesso.
+                É a mesma para os {resultado.criados.length} cadete(s) criado(s) e não fica guardada
+                em lugar nenhum: some quando você sair desta tela. Cada um entra com CAD + o nome de
+                guerra e é obrigado a trocar a senha no primeiro acesso.
               </p>
-              <Button className="mt-3" onClick={() => baixarSenhas(resultado)}>
-                <Download aria-hidden /> Baixar senhas (CSV)
-              </Button>
-            </div>
+              <CaixaSenha senha={resultado.senha_temporaria} />
+              {previa && (
+                <Button asChild variant="outline" className="self-start">
+                  <a href={`/api/admin/importacoes/${previa.id}/logins`} download>
+                    <Download aria-hidden /> Baixar lista de logins (Excel)
+                  </a>
+                </Button>
+              )}
+            </section>
           )}
           <Button variant="outline" className="self-start" onClick={recomecar}>
             <RotateCcw aria-hidden /> Nova importação
@@ -94,6 +85,7 @@ export function Importar() {
     { titulo: "Linha", className: "md:w-16", celula: (l) => l.linha },
     { titulo: "Numérica", className: "md:w-28", celula: (l) => l.numerica || "—" },
     { titulo: "Nome", celula: (l) => l.nome || "—" },
+    { titulo: "Nome de guerra", className: "md:w-36", celula: (l) => l.nome_guerra || "—" },
     { titulo: "Turma", className: "md:w-28", celula: (l) => l.turma || "—" },
     {
       titulo: "Ação",
@@ -140,16 +132,25 @@ export function Importar() {
         >
           <p className="text-sm">
             Envie uma planilha <strong>.xlsx</strong> ou <strong>.csv</strong> com as colunas{" "}
-            <code>numerica</code>, <code>nome</code> e <code>turma</code> (e <code>email</code>,
-            opcional). Nada é gravado antes de você conferir a prévia.
+            <code>numerica</code>, <code>nome</code>, <code>nome_guerra</code> e <code>turma</code>{" "}
+            (e <code>email</code>, opcional). O nome de guerra vai sem o CAD. Nada é gravado antes
+            de você conferir a prévia.
           </p>
-          <a
-            href="/modelo-cadetes.csv"
-            download
-            className="inline-flex items-center gap-2 self-start text-sm font-bold text-primary underline"
-          >
-            <Download className="size-4" aria-hidden /> Baixar planilha modelo
-          </a>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <a
+              href="/api/admin/importacoes/modelo"
+              download
+              className="inline-flex items-center gap-2 font-bold text-primary underline"
+            >
+              <Download className="size-4" aria-hidden /> Baixar planilha modelo (Excel)
+            </a>
+            <span className="text-muted-foreground">
+              ou{" "}
+              <a href="/modelo-cadetes.csv" download className="underline">
+                em CSV
+              </a>
+            </span>
+          </p>
           <div className="flex flex-col gap-1">
             <label htmlFor="arquivo-importacao" className="text-sm font-bold">
               Planilha

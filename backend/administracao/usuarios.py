@@ -14,6 +14,7 @@ from django.core.validators import validate_email
 from django.db import connection, transaction
 from django.db.models import Q
 
+from contas import nome_guerra as ng
 from contas.models import GRUPO_CADETE, Turma
 from core.erros import RegraViolada
 from core.permissoes import exigir
@@ -79,6 +80,23 @@ def _validar(numerica=None, nome=None, email=None, grupos=None):
             raise RegraViolada(f"Grupo inválido: {', '.join(invalidos)}.")
 
 
+def validar_nome_guerra(nome_guerra: str, *, exceto=None) -> str:
+    """Devolve o nome de guerra como será guardado. A chave (sem acento, caixa e
+    pontuação) não pode repetir: é por ela que o login encontra a pessoa."""
+    nome_guerra = ng.limpar(nome_guerra)
+    chave = ng.chave(nome_guerra)
+    if not chave:
+        raise RegraViolada("Informe o nome de guerra.")
+    if len(nome_guerra) > 40:
+        raise RegraViolada("O nome de guerra pode ter até 40 caracteres.")
+    repetido = Usuario.objects.filter(chave_login=chave)
+    if exceto is not None:
+        repetido = repetido.exclude(pk=exceto.pk)
+    if repetido.exists():
+        raise RegraViolada(f'Já existe um usuário com o nome de guerra "{nome_guerra}".')
+    return nome_guerra
+
+
 def _turma(turma_id):
     if turma_id is None:
         return None
@@ -105,12 +123,13 @@ def _conferir_cadete_tem_turma(usuario):
 
 @transaction.atomic
 def criar_usuario(
-    admin, *, numerica, nome, email="", turma_id=None, grupos=(), anotar=False
+    admin, *, numerica, nome, nome_guerra, email="", turma_id=None, grupos=(), anotar=False
 ) -> tuple:
     """Devolve (usuario, senha_temporaria)."""
     exigir(admin, PERMISSAO)
     numerica, nome, email = numerica.strip(), nome.strip(), email.strip()
     _validar(numerica, nome, email, grupos)
+    nome_guerra = validar_nome_guerra(nome_guerra)
     if Usuario.objects.filter(numerica__iexact=numerica).exists():
         raise RegraViolada("Já existe um usuário com esta numérica.")
 
@@ -119,6 +138,7 @@ def criar_usuario(
         numerica=numerica,
         password=senha,
         nome=nome,
+        nome_guerra=nome_guerra,
         email=email,
         turma=_turma(turma_id),
         deve_trocar_senha=True,
@@ -138,6 +158,7 @@ def editar_usuario(
     usuario,
     *,
     nome=None,
+    nome_guerra=None,
     email=None,
     turma_id=_NAO_INFORMADO,
     grupos=None,
@@ -153,6 +174,8 @@ def editar_usuario(
 
     if nome is not None:
         usuario.nome = nome
+    if nome_guerra is not None:
+        usuario.nome_guerra = validar_nome_guerra(nome_guerra, exceto=usuario)
     if email is not None:
         usuario.email = email
     if turma_id is not _NAO_INFORMADO:

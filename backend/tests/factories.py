@@ -37,6 +37,7 @@ class UsuarioFactory(DjangoModelFactory):
 
     numerica = factory.Sequence(lambda n: f"{100000 + n}")
     nome = factory.Faker("name", locale="pt_BR")
+    nome_guerra = factory.Sequence(lambda n: f"Guerra {n}")
     password = Password(SENHA)
     deve_trocar_senha = False
     grupo = None

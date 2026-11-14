@@ -10,12 +10,12 @@ class UsuarioAdmin(UserAdmin):
     form = UsuarioChangeForm
     add_form = UsuarioCreationForm
     ordering = ["nome"]
-    list_display = ["numerica", "nome", "turma", "is_active", "deve_trocar_senha"]
+    list_display = ["numerica", "nome_guerra", "nome", "turma", "is_active"]
     list_filter = ["is_active", "groups", "turma"]
-    search_fields = ["numerica", "nome", "email"]
+    search_fields = ["numerica", "nome", "nome_guerra", "email"]
     fieldsets = [
         (None, {"fields": ["numerica", "password"]}),
-        ("Dados", {"fields": ["nome", "email", "turma", "deve_trocar_senha"]}),
+        ("Dados", {"fields": ["nome", "nome_guerra", "email", "turma", "deve_trocar_senha"]}),
         (
             "Permissões",
             {"fields": ["is_active", "is_staff", "is_superuser", "groups", "user_permissions"]},
@@ -30,6 +30,7 @@ class UsuarioAdmin(UserAdmin):
                 "fields": [
                     "numerica",
                     "nome",
+                    "nome_guerra",
                     "turma",
                     "usable_password",
                     "password1",

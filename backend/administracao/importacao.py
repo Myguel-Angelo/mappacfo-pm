@@ -4,6 +4,9 @@ A prévia lê o arquivo, analisa cada linha contra o banco e guarda o resultado.
 confirmação refaz a análise (o banco pode ter mudado nesse meio-tempo) e grava tudo numa
 transação só. Rodar a mesma planilha duas vezes não duplica nada: quem já existe vira
 "ignorar" (ou "atualizar", se a opção estiver marcada e algo mudou).
+
+Todos os criados numa importação recebem a mesma senha temporária (mais fácil de entregar
+a uma turma inteira) e são obrigados a trocá-la no primeiro acesso.
 """
 
 import csv
@@ -20,7 +23,9 @@ from django.utils import timezone
 from openpyxl import load_workbook
 
 from administracao.models import ImportacaoCadetes
+from administracao.planilhas import ABA_CADETES
 from administracao.usuarios import PERMISSAO, gerar_senha_temporaria
+from contas import nome_guerra as ng
 from contas.models import GRUPO_CADETE, Turma
 from core.erros import RegraViolada
 from core.permissoes import exigir
@@ -29,7 +34,8 @@ Usuario = get_user_model()
 
 TAMANHO_MAXIMO = 2 * 1024 * 1024  # 2 MB
 LINHAS_MAXIMAS = 5000
-COLUNAS_OBRIGATORIAS = ["numerica", "nome", "turma"]
+COLUNAS_OBRIGATORIAS = ["numerica", "nome", "nome_guerra", "turma"]
+COLUNAS = [*COLUNAS_OBRIGATORIAS, "email"]
 
 _TRAVA_IMPORTACAO = 6_000_002
 
@@ -43,7 +49,13 @@ CRIAR, ATUALIZAR, IGNORAR, ERRO = "criar", "atualizar", "ignorar", "erro"
 def _normalizar_cabecalho(valor) -> str:
     texto = unicodedata.normalize("NFKD", str(valor or "")).encode("ascii", "ignore").decode()
     texto = texto.strip().lower().replace("-", "").replace(" ", "_")
-    return {"email": "email", "e_mail": "email", "numero": "numerica"}.get(texto, texto)
+    apelidos = {
+        "e_mail": "email",
+        "numero": "numerica",
+        "nome_de_guerra": "nome_guerra",
+        "guerra": "nome_guerra",
+    }
+    return apelidos.get(texto, texto)
 
 
 def _celula(valor) -> str:
@@ -72,14 +84,17 @@ def _ler_xlsx(conteudo: bytes) -> list[list]:
         planilha = load_workbook(io.BytesIO(conteudo), read_only=True, data_only=True)
     except Exception:  # noqa: BLE001 - qualquer arquivo corrompido vira a mesma mensagem
         raise RegraViolada("Não foi possível ler a planilha. Envie um .xlsx ou .csv.") from None
+    # A aba Cadetes do modelo, se existir: salvar com outra aba aberta não muda o que é lido.
+    aba = planilha[ABA_CADETES] if ABA_CADETES in planilha.sheetnames else planilha.active
     try:
-        return [list(linha) for linha in planilha.active.iter_rows(values_only=True)]
+        return [list(linha) for linha in aba.iter_rows(values_only=True)]
     finally:
         planilha.close()
 
 
 def ler_arquivo(nome: str, conteudo: bytes) -> list[dict]:
-    """Devolve [{"linha": n, "numerica", "nome", "turma", "email"}], sem as linhas vazias.
+    """Devolve [{"linha": n, "numerica", "nome", "nome_guerra", "turma", "email"}], sem as
+    linhas vazias.
 
     `linha` é o número da linha na planilha (cabeçalho = 1), para o oficial achar o erro.
     """
@@ -94,12 +109,8 @@ def ler_arquivo(nome: str, conteudo: bytes) -> list[dict]:
         raise RegraViolada("A planilha está vazia.")
     cabecalho = [_normalizar_cabecalho(v) for v in tabela[inicio]]
     if any(c not in cabecalho for c in COLUNAS_OBRIGATORIAS):
-        raise RegraViolada("A planilha precisa das colunas numerica, nome e turma.")
-    indice = {
-        coluna: cabecalho.index(coluna)
-        for coluna in [*COLUNAS_OBRIGATORIAS, "email"]
-        if coluna in cabecalho
-    }
+        raise RegraViolada("A planilha precisa das colunas numerica, nome, nome_guerra e turma.")
+    indice = {coluna: cabecalho.index(coluna) for coluna in COLUNAS if coluna in cabecalho}
 
     linhas = []
     for numero, valores in enumerate(tabela[inicio + 1 :], start=inicio + 2):
@@ -123,6 +134,13 @@ def analisar(linhas: list[dict], *, atualizar_existentes: bool, criar_turmas: bo
     turmas = {t.nome.lower(): t for t in Turma.objects.all()}
     numericas = [linha["numerica"] for linha in linhas if linha["numerica"]]
     # Sem diferenciar maiúsculas: "abc1" na planilha é o mesmo usuário "ABC1".
+    # Dono de cada nome de guerra já cadastrado (pela chave sem acento/caixa/pontuação).
+    chaves = [ng.chave(ng.limpar(linha.get("nome_guerra", ""))) for linha in linhas]
+    donos_da_chave = dict(
+        Usuario.objects.filter(chave_login__in=[c for c in chaves if c]).values_list(
+            "chave_login", "numerica"
+        )
+    )
     existentes = {
         u.numerica.lower(): u
         for u in Usuario.objects.annotate(numerica_min=Lower("numerica"))
@@ -132,6 +150,7 @@ def analisar(linhas: list[dict], *, atualizar_existentes: bool, criar_turmas: bo
     }
 
     primeira_vez: dict[str, int] = {}
+    guerra_primeira_vez: dict[str, int] = {}
     resultado = []
     for linha in linhas:
         erros: list[str] = []
@@ -142,6 +161,9 @@ def analisar(linhas: list[dict], *, atualizar_existentes: bool, criar_turmas: bo
             linha["turma"],
             linha["email"],
         )
+        # O CAD que vier na planilha é só do login: guarda-se o nome de guerra puro.
+        nome_guerra = ng.limpar(linha.get("nome_guerra", ""))
+        chave = ng.chave(nome_guerra)
 
         if not numerica:
             erros.append("Numérica vazia.")
@@ -157,6 +179,18 @@ def analisar(linhas: list[dict], *, atualizar_existentes: bool, criar_turmas: bo
             erros.append("Nome vazio.")
         if len(nome) > 120:
             erros.append("Nome com mais de 120 caracteres.")
+        if not chave:
+            erros.append("Nome de guerra vazio.")
+        elif len(nome_guerra) > 40:
+            erros.append("Nome de guerra com mais de 40 caracteres.")
+        elif chave in guerra_primeira_vez:
+            primeira = guerra_primeira_vez[chave]
+            erros.append(f"Nome de guerra repetido no arquivo (também na linha {primeira}).")
+        else:
+            guerra_primeira_vez[chave] = linha["linha"]
+            dono = donos_da_chave.get(chave)
+            if dono is not None and dono.lower() != numerica.lower():
+                erros.append(f'O nome de guerra "{nome_guerra}" já é do usuário {dono}.')
         if email:
             try:
                 validate_email(email)
@@ -178,6 +212,8 @@ def analisar(linhas: list[dict], *, atualizar_existentes: bool, criar_turmas: bo
             else:
                 if existente.nome != nome:
                     mudancas.append(f"nome: {existente.nome} → {nome}")
+                if existente.nome_guerra != nome_guerra:
+                    mudancas.append(f"nome de guerra: {existente.nome_guerra} → {nome_guerra}")
                 if email and existente.email != email:
                     mudancas.append(f"e-mail: {existente.email or '(vazio)'} → {email}")
                 turma_atual = existente.turma.nome if existente.turma else "(sem turma)"
@@ -196,7 +232,15 @@ def analisar(linhas: list[dict], *, atualizar_existentes: bool, criar_turmas: bo
             acao = IGNORAR
         if acao == CRIAR and turma is None:
             mudancas.append(f'turma nova "{turma_nome}" será criada')
-        resultado.append({**linha, "acao": acao, "erros": erros, "mudancas": mudancas})
+        resultado.append(
+            {
+                **linha,
+                "nome_guerra": nome_guerra,
+                "acao": acao,
+                "erros": erros,
+                "mudancas": mudancas,
+            }
+        )
     return resultado
 
 
@@ -226,10 +270,23 @@ def criar_previa(
     )
 
 
+def criados(importacao):
+    """Os cadetes que esta importação criou, por turma e nome."""
+    if importacao.confirmada_em is None:
+        raise RegraViolada("Esta importação ainda não foi confirmada.")
+    numericas = [linha["numerica"] for linha in importacao.linhas if linha["acao"] == CRIAR]
+    return (
+        Usuario.objects.filter(numerica__in=numericas)
+        .select_related("turma")
+        .prefetch_related("groups")
+        .order_by("turma__nome", "nome")
+    )
+
+
 @transaction.atomic
 def confirmar(admin, importacao) -> dict:
-    """Grava a importação. Devolve o resumo com as senhas temporárias dos criados, que só
-    existem nesta resposta."""
+    """Grava a importação. Devolve o resumo com a senha temporária dos criados (a mesma
+    para todos), que só existe nesta resposta."""
     exigir(admin, PERMISSAO)
     importacao = ImportacaoCadetes.objects.select_for_update().get(pk=importacao.pk)
     if importacao.criada_por_id != admin.pk:
@@ -245,7 +302,7 @@ def confirmar(admin, importacao) -> dict:
         cursor.execute("SELECT pg_advisory_xact_lock(%s)", [_TRAVA_IMPORTACAO])
     linhas = analisar(
         [
-            {c: linha[c] for c in ("linha", "numerica", "nome", "turma", "email")}
+            {"linha": linha["linha"], **{c: linha.get(c, "") for c in COLUNAS}}
             for linha in importacao.linhas
         ],
         atualizar_existentes=importacao.atualizar_existentes,
@@ -266,14 +323,15 @@ def confirmar(admin, importacao) -> dict:
             )
         return turmas[nome.lower()]
 
+    senha = gerar_senha_temporaria()
     criados, atualizados, ignorados = [], 0, 0
     for linha in linhas:
         if linha["acao"] == CRIAR:
-            senha = gerar_senha_temporaria()
             usuario = Usuario.objects.create_user(
                 numerica=linha["numerica"],
                 password=senha,
                 nome=linha["nome"],
+                nome_guerra=linha["nome_guerra"],
                 email=linha["email"],
                 turma=turma_de(linha["turma"]),
                 deve_trocar_senha=True,
@@ -283,13 +341,14 @@ def confirmar(admin, importacao) -> dict:
                 {
                     "numerica": usuario.numerica,
                     "nome": usuario.nome,
+                    "login": usuario.texto_login,
                     "turma": usuario.turma.nome,
-                    "senha_temporaria": senha,
                 }
             )
         elif linha["acao"] == ATUALIZAR:
             usuario = Usuario.objects.select_for_update().get(numerica__iexact=linha["numerica"])
             usuario.nome = linha["nome"]
+            usuario.nome_guerra = linha["nome_guerra"]
             if linha["email"]:
                 usuario.email = linha["email"]
             usuario.turma = turma_de(linha["turma"])
@@ -307,4 +366,9 @@ def confirmar(admin, importacao) -> dict:
         "ignorados": ignorados,
     }
     importacao.save(update_fields=["linhas", "confirmada_em", "resumo"])
-    return {"criados": criados, "atualizados": atualizados, "ignorados": ignorados}
+    return {
+        "criados": criados,
+        "senha_temporaria": senha if criados else None,
+        "atualizados": atualizados,
+        "ignorados": ignorados,
+    }

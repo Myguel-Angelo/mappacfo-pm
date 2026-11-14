@@ -35,7 +35,7 @@ export function temPermissao(usuario: Me | null | undefined, permissao: Permissa
 export function useLogin() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (dados: { numerica: string; senha: string }) =>
+    mutationFn: (dados: { login: string; senha: string }) =>
       api<Me>("/auth/login", { method: "POST", body: dados }),
     onSuccess: (usuario) => {
       // Outro usuário pode ter usado o navegador antes: nada do cache anterior serve.

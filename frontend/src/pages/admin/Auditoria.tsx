@@ -250,8 +250,9 @@ function Bloqueios() {
   return (
     <>
       <p className="mb-4 text-sm text-muted-foreground">
-        Após 5 senhas erradas, a numérica fica bloqueada naquele IP por 15 minutos. Liberar zera as
-        tentativas na hora.
+        Após 5 senhas erradas, a conta fica bloqueada naquele IP por 15 minutos, mesmo que cada
+        tentativa tenha uma grafia diferente do nome de guerra. Liberar zera as tentativas na hora.
+        Nomes que não correspondem a ninguém aparecem com &quot;?&quot; na frente.
       </p>
       {consulta.isPending ? (
         <Carregando />

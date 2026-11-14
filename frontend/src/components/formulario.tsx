@@ -4,12 +4,14 @@ import type { FieldError as ErroRhf } from "react-hook-form";
 
 import { ErroApi, mensagemDeErro } from "@/api/erros";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 type CampoProps = {
   rotulo: string;
   erro?: ErroRhf;
+  /** Dica fixa abaixo do campo (lida pelo leitor de tela junto com o campo). */
+  descricao?: React.ReactNode;
   children: (props: {
     id: string;
     "aria-invalid": boolean;
@@ -18,13 +20,16 @@ type CampoProps = {
 };
 
 /** Label ligado ao input, e a mensagem de erro anunciada pelo leitor de tela. */
-export function Campo({ rotulo, erro, children }: CampoProps) {
+export function Campo({ rotulo, erro, descricao, children }: CampoProps) {
   const id = useId();
   const idErro = `${id}-erro`;
+  const idDescricao = `${id}-descricao`;
+  const descritoPor = [descricao && idDescricao, erro && idErro].filter(Boolean).join(" ");
   return (
     <Field data-invalid={!!erro}>
       <FieldLabel htmlFor={id}>{rotulo}</FieldLabel>
-      {children({ id, "aria-invalid": !!erro, "aria-describedby": erro ? idErro : undefined })}
+      {children({ id, "aria-invalid": !!erro, "aria-describedby": descritoPor || undefined })}
+      {descricao && <FieldDescription id={idDescricao}>{descricao}</FieldDescription>}
       <FieldError id={idErro} errors={[erro]} />
     </Field>
   );

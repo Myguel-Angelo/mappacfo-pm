@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.middleware.csrf import get_token
-from ninja import Router, Schema, Status
+from ninja import Field, Router, Schema, Status
 from ninja.errors import HttpError
 from ninja.utils import check_csrf
 
@@ -20,6 +20,7 @@ class TurmaResumoOut(Schema):
 class MeOut(Schema):
     numerica: str
     nome: str
+    nome_guerra: str
     email: str
     turma: TurmaResumoOut | None
     perfil: str
@@ -33,7 +34,7 @@ class CsrfOut(Schema):
 
 
 class LoginIn(Schema):
-    numerica: str
+    login: str = Field(max_length=80)  # nome de guerra; cadetes com "CAD " na frente
     senha: str
 
 
@@ -47,6 +48,7 @@ def dados_me(usuario):
     return {
         "numerica": usuario.numerica,
         "nome": usuario.nome,
+        "nome_guerra": usuario.nome_guerra,
         "email": usuario.email,
         "turma": usuario.turma,
         "perfil": usuario.perfil,
@@ -68,11 +70,11 @@ def entrar(request, dados: LoginIn):
     if check_csrf(request):
         raise HttpError(403, "Falha na verificação CSRF.")
 
-    usuario = authenticate(request, numerica=dados.numerica, password=dados.senha)
+    usuario = authenticate(request, login=dados.login, password=dados.senha)
     if usuario is None:
-        # Mesma mensagem para numérica inexistente e senha errada.
+        # Mesma mensagem para nome inexistente e senha errada.
         # Se o axes bloquear, o AxesMiddleware troca esta resposta pelo 429.
-        return Status(401, {"detail": "Numérica ou senha incorreta."})
+        return Status(401, {"detail": "Nome de guerra ou senha incorreta."})
 
     login(request, usuario)  # gera nova sessão (evita session fixation)
     return Status(200, dados_me(usuario))
