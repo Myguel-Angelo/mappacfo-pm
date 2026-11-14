@@ -20,6 +20,7 @@ class TurmaResumoOut(Schema):
 class MeOut(Schema):
     numerica: str
     nome: str
+    nome_guerra: str
     email: str
     turma: TurmaResumoOut | None
     perfil: str
@@ -47,6 +48,7 @@ def dados_me(usuario):
     return {
         "numerica": usuario.numerica,
         "nome": usuario.nome,
+        "nome_guerra": usuario.nome_guerra,
         "email": usuario.email,
         "turma": usuario.turma,
         "perfil": usuario.perfil,

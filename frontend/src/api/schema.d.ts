@@ -704,6 +704,8 @@ export interface components {
             numerica: string;
             /** Nome */
             nome: string;
+            /** Nome Guerra */
+            nome_guerra: string;
             /** Email */
             email: string;
             turma: components["schemas"]["TurmaResumoOut"] | null;
@@ -975,6 +977,10 @@ export interface components {
             numerica: string;
             /** Nome */
             nome: string;
+            /** Nome Guerra */
+            nome_guerra: string;
+            /** Login */
+            login: string;
             /** Email */
             email: string;
             /** Perfil */
@@ -1010,6 +1016,8 @@ export interface components {
             numerica: string;
             /** Nome */
             nome: string;
+            /** Nome Guerra */
+            nome_guerra: string;
             /**
              * Email
              * @default
@@ -1047,6 +1055,8 @@ export interface components {
         AdminUsuarioEditarIn: {
             /** Nome */
             nome?: string | null;
+            /** Nome Guerra */
+            nome_guerra?: string | null;
             /** Email */
             email?: string | null;
             /** Turma Id */

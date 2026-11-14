@@ -82,7 +82,11 @@ def listar_usuarios(request, filtros: Query[AdminUsuarioFiltros]):
     qs = _usuarios()
     if filtros.busca:
         termo = filtros.busca.strip()
-        qs = qs.filter(Q(nome__unaccent__icontains=termo) | Q(numerica__icontains=termo))
+        qs = qs.filter(
+            Q(nome__unaccent__icontains=termo)
+            | Q(nome_guerra__unaccent__icontains=termo)
+            | Q(numerica__icontains=termo)
+        )
     if filtros.grupo:
         qs = qs.filter(groups__name=filtros.grupo)
     if filtros.turma_id is not None:

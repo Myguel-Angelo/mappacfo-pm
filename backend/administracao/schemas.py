@@ -13,6 +13,8 @@ class AdminUsuarioOut(Schema):
     id: int
     numerica: str
     nome: str
+    nome_guerra: str
+    login: str  # o que a pessoa digita para entrar ("CAD BRUNO")
     email: str
     perfil: str
     turma: TurmaResumoOut | None
@@ -25,6 +27,10 @@ class AdminUsuarioOut(Schema):
     @staticmethod
     def resolve_grupos(obj):
         return sorted(g.name for g in obj.groups.all())
+
+    @staticmethod
+    def resolve_login(obj):
+        return obj.texto_login
 
     @staticmethod
     def resolve_anotar(obj):
@@ -49,6 +55,7 @@ class AdminUsuarioFiltros(Schema):
 class AdminUsuarioCriarIn(Schema):
     numerica: str = Field(min_length=1, max_length=20)
     nome: str = Field(min_length=1, max_length=120)
+    nome_guerra: str = Field(min_length=1, max_length=40)
     email: str = Field(default="", max_length=254)
     turma_id: int | None = None
     grupos: list[str] = []
@@ -57,6 +64,7 @@ class AdminUsuarioCriarIn(Schema):
 
 class AdminUsuarioEditarIn(Schema):
     nome: str | None = Field(default=None, min_length=1, max_length=120)
+    nome_guerra: str | None = Field(default=None, min_length=1, max_length=40)
     email: str | None = Field(default=None, max_length=254)
     turma_id: int | None = None
     grupos: list[str] | None = None

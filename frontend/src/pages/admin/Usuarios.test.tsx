@@ -14,6 +14,8 @@ const novo: AdminUsuario = {
   id: 9,
   numerica: "4001",
   nome: "Novo Cadete",
+  nome_guerra: "Novato",
+  login: "CAD Novato",
   email: "",
   perfil: "Cadete",
   turma: { id: 1, nome: "CFO I" },

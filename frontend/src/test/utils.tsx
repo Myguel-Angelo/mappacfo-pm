@@ -9,6 +9,7 @@ export function usuario(dados: Partial<Me> = {}): Me {
   return {
     numerica: "1001",
     nome: "Cadete Teste",
+    nome_guerra: "Teste",
     email: "",
     turma: { id: 1, nome: "CFO I" },
     perfil: "Cadete",
