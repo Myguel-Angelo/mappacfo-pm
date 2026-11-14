@@ -53,15 +53,18 @@ def xlsx(linhas: list[list]) -> bytes:
 def test_previa_lista_cada_erro_com_a_linha_e_nao_grava(api_admin):
     TurmaFactory(nome="CFO I")
     UsuarioFactory(oficial=True, numerica="9000")
+    UsuarioFactory(oficial=True, numerica="9001", nome_guerra="Ten Ocupado")
     conteudo = csv_excel(
         [
-            "Numérica;Nome;Turma;E-mail",
-            "1001;João Câmara;CFO I;joao@pm.ma.gov.br",
-            "1001;Repetido;CFO I;",
-            ";;;",
-            "1002;Sem Turma;CFO X;",
-            "1003;;CFO I;email-ruim",
-            "9000;Oficial;CFO I;",
+            "Numérica;Nome;Nome de guerra;Turma;E-mail",
+            "1001;João Câmara;Câmara;CFO I;joao@pm.ma.gov.br",
+            "1001;Repetido;Repetido;CFO I;",
+            ";;;;",
+            "1002;Sem Turma;Sem Turma;CFO X;",
+            "1003;;;CFO I;email-ruim",
+            "9000;Oficial;Oficial;CFO I;",
+            "1004;Outro Câmara;CAD camara;CFO I;",
+            "1005;Ocupado;Ten Ocupado;CFO I;",
         ]
     )
 
@@ -75,9 +78,12 @@ def test_previa_lista_cada_erro_com_a_linha_e_nao_grava(api_admin):
     assert linhas[3]["erros"] == ["Numérica repetida no arquivo (também na linha 2)."]
     assert 4 not in linhas  # linha vazia ignorada
     assert linhas[5]["erros"] == ['Turma "CFO X" não existe.']
-    assert linhas[6]["erros"] == ["Nome vazio.", "E-mail inválido."]
+    assert linhas[6]["erros"] == ["Nome vazio.", "Nome de guerra vazio.", "E-mail inválido."]
     assert linhas[7]["erros"] == ["A numérica pertence a um usuário que não é cadete."]
-    assert previa["totais"] == {"criar": 1, "atualizar": 0, "ignorar": 0, "erro": 4}
+    # O CAD e a caixa não fazem nomes diferentes.
+    assert linhas[8]["erros"] == ["Nome de guerra repetido no arquivo (também na linha 2)."]
+    assert linhas[9]["erros"] == ['O nome de guerra "Ten Ocupado" já é do usuário 9001.']
+    assert previa["totais"] == {"criar": 1, "atualizar": 0, "ignorar": 0, "erro": 6}
     assert not Usuario.objects.filter(numerica="1001").exists()
 
     confirmar = api_admin.post(f"admin/importacoes/{previa['id']}/confirmar")
@@ -85,27 +91,38 @@ def test_previa_lista_cada_erro_com_a_linha_e_nao_grava(api_admin):
     assert not Usuario.objects.filter(numerica="1001").exists()
 
 
-def test_confirmar_cria_os_cadetes_com_senha_que_funciona(api_admin):
+def test_confirmar_cria_os_cadetes_com_uma_senha_para_todos(api_admin):
     TurmaFactory(nome="CFO I")
-    previa = enviar(api_admin, xlsx([["numerica", "nome", "turma"], [1001, "Ana", "CFO I"]])).json()
+    planilha = xlsx(
+        [
+            ["numerica", "nome", "nome_guerra", "turma"],
+            [1001, "Ana Souza", "CAD Souza", "CFO I"],
+            [1002, "Bia Lima", "Lima", "CFO I"],
+        ]
+    )
+    previa = enviar(api_admin, planilha).json()
 
     resultado = api_admin.post(f"admin/importacoes/{previa['id']}/confirmar").json()
 
     assert resultado["atualizados"] == 0
-    [criado] = resultado["criados"]
-    assert criado["numerica"] == "1001"  # 1001.0 do Excel vira "1001"
+    assert [c["numerica"] for c in resultado["criados"]] == ["1001", "1002"]  # 1001.0 → "1001"
+    assert [c["login"] for c in resultado["criados"]] == ["CAD Souza", "CAD Lima"]
     cadete = Usuario.objects.get(numerica="1001")
     assert cadete.groups.filter(name="Cadete").exists()
-    assert cadete.turma.nome == "CFO I"
-    assert ClienteApi().login("1001", criado["senha_temporaria"]).json()["deve_trocar_senha"]
+    assert (cadete.turma.nome, cadete.nome_guerra) == ("CFO I", "Souza")
+    senha = resultado["senha_temporaria"]
+    for numerica in ["1001", "1002"]:
+        assert ClienteApi().login(numerica, senha).json()["deve_trocar_senha"] is True
     # A senha não fica guardada na prévia nem no resumo.
     salvo = ImportacaoCadetes.objects.get(pk=previa["id"])
-    assert criado["senha_temporaria"] not in str(salvo.linhas) + str(salvo.resumo)
+    assert senha not in str(salvo.linhas) + str(salvo.resumo)
 
 
 def test_mesma_planilha_duas_vezes_nao_duplica(api_admin):
     TurmaFactory(nome="CFO I")
-    conteudo = csv_excel(["numerica;nome;turma", "1001;Ana;CFO I", "1002;Bia;CFO I"])
+    conteudo = csv_excel(
+        ["numerica;nome;nome_guerra;turma", "1001;Ana;Ana;CFO I", "1002;Bia;Bia;CFO I"]
+    )
     primeira = enviar(api_admin, conteudo).json()
     api_admin.post(f"admin/importacoes/{primeira['id']}/confirmar")
 
@@ -113,14 +130,19 @@ def test_mesma_planilha_duas_vezes_nao_duplica(api_admin):
 
     assert segunda["totais"] == {"criar": 0, "atualizar": 0, "ignorar": 2, "erro": 0}
     resultado = api_admin.post(f"admin/importacoes/{segunda['id']}/confirmar").json()
-    assert resultado == {"criados": [], "atualizados": 0, "ignorados": 2}
+    assert resultado == {
+        "criados": [],
+        "senha_temporaria": None,
+        "atualizados": 0,
+        "ignorados": 2,
+    }
     assert Usuario.objects.filter(numerica__in=["1001", "1002"]).count() == 2
 
 
 def test_atualizar_existentes_so_quando_marcado(api_admin):
     turma_nova = TurmaFactory(nome="CFO II")
-    UsuarioFactory(cadete=True, numerica="1001", nome="Ana Antiga")
-    conteudo = csv_excel(["numerica;nome;turma", "1001;Ana Nova;CFO II"])
+    UsuarioFactory(cadete=True, numerica="1001", nome="Ana Antiga", nome_guerra="Antiga")
+    conteudo = csv_excel(["numerica;nome;nome_guerra;turma", "1001;Ana Nova;Nova;CFO II"])
 
     sem_opcao = enviar(api_admin, conteudo).json()
     assert sem_opcao["linhas"][0]["acao"] == "ignorar"
@@ -128,14 +150,17 @@ def test_atualizar_existentes_so_quando_marcado(api_admin):
     com_opcao = enviar(api_admin, conteudo, atualizar_existentes=True).json()
     assert com_opcao["linhas"][0]["acao"] == "atualizar"
     assert "nome: Ana Antiga → Ana Nova" in com_opcao["linhas"][0]["mudancas"]
+    assert "nome de guerra: Antiga → Nova" in com_opcao["linhas"][0]["mudancas"]
     api_admin.post(f"admin/importacoes/{com_opcao['id']}/confirmar")
     cadete = Usuario.objects.get(numerica="1001")
-    assert (cadete.nome, cadete.turma) == ("Ana Nova", turma_nova)
+    assert (cadete.nome, cadete.nome_guerra, cadete.turma) == ("Ana Nova", "Nova", turma_nova)
 
 
 def test_criar_turmas_quando_marcado(api_admin):
     previa = enviar(
-        api_admin, csv_excel(["numerica,nome,turma", "1001,Ana,CFO V"]), criar_turmas=True
+        api_admin,
+        csv_excel(["numerica,nome,nome_guerra,turma", "1001,Ana,Ana,CFO V"]),
+        criar_turmas=True,
     ).json()
 
     assert previa["linhas"][0]["acao"] == "criar"
@@ -145,7 +170,9 @@ def test_criar_turmas_quando_marcado(api_admin):
 
 def test_previa_expirada(api_admin):
     TurmaFactory(nome="CFO I")
-    previa = enviar(api_admin, csv_excel(["numerica;nome;turma", "1001;Ana;CFO I"])).json()
+    previa = enviar(
+        api_admin, csv_excel(["numerica;nome;nome_guerra;turma", "1001;Ana;Ana;CFO I"])
+    ).json()
     ImportacaoCadetes.objects.filter(pk=previa["id"]).update(
         criada_em=ImportacaoCadetes.objects.get(pk=previa["id"]).criada_em - timedelta(minutes=31)
     )
@@ -157,7 +184,9 @@ def test_previa_expirada(api_admin):
 
 def test_nao_confirma_duas_vezes(api_admin):
     TurmaFactory(nome="CFO I")
-    previa = enviar(api_admin, csv_excel(["numerica;nome;turma", "1001;Ana;CFO I"])).json()
+    previa = enviar(
+        api_admin, csv_excel(["numerica;nome;nome_guerra;turma", "1001;Ana;Ana;CFO I"])
+    ).json()
     api_admin.post(f"admin/importacoes/{previa['id']}/confirmar")
 
     resp = api_admin.post(f"admin/importacoes/{previa['id']}/confirmar")
@@ -168,7 +197,8 @@ def test_nao_confirma_duas_vezes(api_admin):
 def test_falha_no_meio_desfaz_tudo(admin, monkeypatch):
     TurmaFactory(nome="CFO I")
     linhas = importacao.ler_arquivo(
-        "x.csv", csv_excel(["numerica;nome;turma", "1001;Ana;CFO I", "1002;Bia;CFO I"])
+        "x.csv",
+        csv_excel(["numerica;nome;nome_guerra;turma", "1001;Ana;Ana;CFO I", "1002;Bia;Bia;CFO I"]),
     )
     previa = ImportacaoCadetes.objects.create(
         criada_por=admin,
@@ -196,7 +226,9 @@ def test_falha_no_meio_desfaz_tudo(admin, monkeypatch):
 
 def test_banco_mudou_entre_previa_e_confirmacao(api_admin):
     TurmaFactory(nome="CFO I")
-    previa = enviar(api_admin, csv_excel(["numerica;nome;turma", "1001;Ana;CFO I"])).json()
+    previa = enviar(
+        api_admin, csv_excel(["numerica;nome;nome_guerra;turma", "1001;Ana;Ana;CFO I"])
+    ).json()
     UsuarioFactory(oficial=True, numerica="1001")  # alguém cadastrou um oficial com a numérica
 
     resp = api_admin.post(f"admin/importacoes/{previa['id']}/confirmar")
@@ -209,8 +241,11 @@ def test_banco_mudou_entre_previa_e_confirmacao(api_admin):
     ("conteudo", "mensagem"),
     [
         (b"", "A planilha está vazia."),
-        (b"nome;turma\nAna;CFO I", "A planilha precisa das colunas numerica, nome e turma."),
-        (b"numerica;nome;turma\n", "A planilha não tem nenhum cadete."),
+        (
+            b"numerica;nome;turma\n1;Ana;CFO I",
+            "A planilha precisa das colunas numerica, nome, nome_guerra e turma.",
+        ),
+        (b"numerica;nome;nome_guerra;turma\n", "A planilha não tem nenhum cadete."),
         (b"PK\x03\x04lixo", "Não foi possível ler a planilha. Envie um .xlsx ou .csv."),
     ],
 )
@@ -222,7 +257,7 @@ def test_arquivos_invalidos(conteudo, mensagem):
 def test_importacao_exige_gerenciar_usuarios(api, comandante):
     api.login(comandante.numerica)
 
-    resp = enviar(api, csv_excel(["numerica;nome;turma", "1001;Ana;CFO I"]))
+    resp = enviar(api, csv_excel(["numerica;nome;nome_guerra;turma", "1001;Ana;Ana;CFO I"]))
 
     assert resp.status_code == 403
     assert not ImportacaoCadetes.objects.exists()

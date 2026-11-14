@@ -142,6 +142,7 @@ class AdminLinhaImportacaoOut(Schema):
     linha: int
     numerica: str
     nome: str
+    nome_guerra: str = ""  # prévias de antes do nome de guerra não têm a coluna
     turma: str
     email: str
     acao: str  # criar | atualizar | ignorar | erro
@@ -181,12 +182,13 @@ class AdminImportacaoOpcoesIn(Schema):
 class AdminCadeteCriadoOut(Schema):
     numerica: str
     nome: str
+    login: str
     turma: str
-    senha_temporaria: str
 
 
 class AdminResultadoImportacaoOut(Schema):
     criados: list[AdminCadeteCriadoOut]
+    senha_temporaria: str | None  # a mesma para todos os criados; None se ninguém foi criado
     atualizados: int
     ignorados: int
 
